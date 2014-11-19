@@ -55,3 +55,8 @@ target/
 
 # IDEA
 .idea/
+
+# Web assets
+*.webassets-cache/*
+app/static/_gen/*
+
