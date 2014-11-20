@@ -1,0 +1,3 @@
+V/* line 6 */\u000a.valign {\u000a  display: flex;\u000a  align-items: center;\u000a}\u000a@supports not (-ms-flex: 1) {\u000a  /* line 6 */\u000a  .valign {\u000a    height: auto;\u000a    min-height: 24em;\u000a  }\u000a}\u000a
+p1
+.

@@ -1,8 +1,16 @@
 {% extends "/base.html" %}
 
+{% import "/login/widget.html" as login_widget %}
+
 {% block content %}
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12 center-block">
+
+                <div class="row">
+                    <div class="col-md-2 col-md-offset-5">
+                    {{ login_widget.create_widget("Sign up") }}
+                    </div>
+                </div>
 
             </div>
         </div>
