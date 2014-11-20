@@ -4,14 +4,17 @@
 
 {% block content %}
         <div class="row">
-            <div class="col-md-12 center-block">
-
-                <div class="row">
-                    <div class="col-md-2 col-md-offset-5">
-                    {{ login_widget.create_widget("Sign up") }}
-                    </div>
+            <div class="col-md-5 col-md-offset-1">
+                <div class="jumbotron">
+                    <h1>Free unlimited time tracking.</h1>
+                    <h3>Fork me on GitHub!</h3>
                 </div>
-
             </div>
+            <div class="col-md-4 center-block" style="min-width: 350px; max-width: 625px;">
+                {{ login_widget.create_widget("Sign up") }}
+            </div>
+
         </div>
 {% endblock %}
+
+        {# {{ login_widget.create_widget("Sign up") }} #}
