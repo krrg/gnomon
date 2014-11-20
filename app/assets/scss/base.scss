@@ -1,13 +1,37 @@
 body {
-    @media screen and (min-width: 300px) {
-        background: url('https://farm8.staticflickr.com/7528/15821777485_a54420e6a5_k_d.jpg');
-        background-size: fill;
-        background-repeat: no-repeat;
-    }
-}
 
+}
 .gnomon-index-content {
+  background: url('https://farm8.staticflickr.com/7528/15821777485_a54420e6a5_k_d.jpg');
+  background-size: fill;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 
+  @media screen {
+
+    
+    @media (min-width : 320px) {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+    @media (min-width : 480px) {
+
+    }
+    @media (min-width : 768px) {
+      padding-top: 40px;
+      padding-bottom: 100px;
+    }
+    @media (min-width : 992px) {
+      padding-top: 80px;
+
+    }
+    @media (min-width : 1200px) {
+      padding-bottom: 300px;
+    }
+  }
 }
 
+.navbar {
+  margin-bottom: 0px;
+}
 

@@ -3,8 +3,8 @@
 {% import "/login/widget.html" as login_widget %}
 
 {% block content %}
-<div class="gnomon-index-content" style="margin-top: 80px;">
-    <div class="row">
+<div class="container-fluid">
+    <div class="row gnomon-index-content">
         <div class="col-sm-8 col-sm-offset-2">
             <div class="jumbotron bg-primary" style="padding: 20px; background-color: rgba(255, 255, 255, 0.75);">
                 <div class="row center-block">
@@ -13,7 +13,7 @@
 
                         <h3>Fork me on GitHub!</h3>
                     </div>
-                    <div class="col-md-5" style="min-width: 300px; max-width: 625px;">
+                    <div class="col-lg-5" style="min-width: 300px; max-width: 625px;">
                         {{ login_widget.create_widget("Sign up") }}
                     </div>
                 </div>
@@ -21,15 +21,26 @@
         </div>
     </div>
 
-    <div class="row" >
-        <p style="color: grey;">Image courtesy of National Park Service</p>
+    <div class="row" class="">
+        <div class="col-sm-8 col-sm-offset-2">
+            <div class="row text-center">
+                <h2>Try it out now!</h2>
+                <p> Clock in and out and see your time sheet change </p>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <h3>It's cool</h3>
+                </div>
+                <div class="col-sm-4">
+                    <h3>It's fun</h3>
+                </div>
+                <div class="col-sm-4">
+                    <h3>It's productive</h3>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-<div class="row" class="">
-
-</div>
-
 {% endblock %}
 
 
