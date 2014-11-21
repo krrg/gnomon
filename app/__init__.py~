@@ -20,15 +20,6 @@ env.register(
     )
 )
 
-env.register(
-    'css_timesheet',
-    assets.Bundle(
-        'timesheet.scss',
-        filters='scss',
-        output='_gen/css_timesheet.css'
-    )
-)
-
 
 # Import all the views here
 from views import root

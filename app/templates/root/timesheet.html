@@ -1,0 +1,142 @@
+{% extends "/base.html" %}
+
+
+{%block imports %}
+    {% assets "css_timesheet" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+    {% endassets %}
+{% endblock %}
+
+{% block content %}
+<div class="timesheet">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-14 text-center" style="background: gray;">
+                Week of Nov 16-22, 2014
+            </div>
+            <div class="visible-xs col-xs-7" style="background: gray;">
+                In
+            </div>
+            <div class="visible-xs col-xs-7" style="background: gray;">
+                Out
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Sunday
+                    </div>
+                    
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Monday
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Tuesday
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Wednesday
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Thursday
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Friday
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                        9:55
+                    </div>
+                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                        10:55
+                    </div>
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="row">
+                    <div class="col-sm-14 col-xs-14">
+                        Saturday
+                    </div>                    
+                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    </div>
+                </div>
+            </div>                   
+                  
+        </div>
+    </div>
+</div>
+{% endblock %}
