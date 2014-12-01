@@ -4,6 +4,129 @@
 {%block imports %}
     {% assets "css_timesheet" %}
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+        <style>
+          .timesheet-day {
+            text-align: center;
+
+          }
+          .in-time {
+            background: #BDECB6;
+            padding-right: 5px;
+            padding-left: 5px;
+            cursor: pointer;
+            height: 35px;
+            -webkit-user-select: none; 
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -ms-user-select: none;
+          }
+          .out-time {
+            background: #FF7878;
+            padding-right: 5px;
+            padding-left: 5px;
+            cursor: pointer;
+            height: 35px;
+            -webkit-user-select: none; 
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -ms-user-select: none;
+          }
+          .in-time:hover {
+            background: #a0e496;
+          }
+          .out-time:hover {
+            background: #ff5c5c;
+          }
+        </style>
+        <script>
+          var currentInputBox = null;
+          var originalText = null;
+          function updateFromInputBox() {
+            if(currentInputBox) {
+              var text = parseText($("input", currentInputBox).first().val());
+              if(text === null) {
+                text = originalText;
+              }
+              $(currentInputBox).html(parseText(text));
+              currentInputBox = null;
+            }
+          }
+          function parseText(text) {
+            text = text.trim();
+
+            if(text === "") {
+              return text;
+            }
+            var morning = true;
+            if(text.toLowerCase().indexOf("pm", text.length - 2) !== -1) {
+              morning = false;
+              text = text.substring(0, text.length - 2);
+            }
+            if(text.toLowerCase().indexOf("am", text.length - 2) !== -1) {
+              text = text.substring(0, text.length - 2);
+            }
+
+            var ending = " PM";
+            if(morning) {
+              ending = " AM"
+            }
+
+            var splitText = text.trim().split(":");
+            var firstNumber = parseInt(splitText[0]);
+
+            if(isNaN(firstNumber) || firstNumber < 1 || firstNumber > 12) {
+              return null;
+            }
+
+            if(splitText.length == 1) {
+              return firstNumber+":00"+ending;
+            }
+
+            var secondNumber = parseInt(splitText[1]);
+
+            if(isNaN(secondNumber) || secondNumber < 0 || secondNumber > 59) {
+              return null;
+            }
+
+            if(secondNumber < 10) {
+              return firstNumber+":0"+secondNumber+ending;
+            }
+            else {
+              return firstNumber+":"+secondNumber+ending;
+            }
+          }
+          $(document).ready( function (event) {
+
+            $(".in-time, .out-time").on("click", function(event) {
+              event.preventDefault();
+              if(currentInputBox !== null && !this.isEqualNode(currentInputBox)) {
+                updateFromInputBox();
+                return false;
+              }
+              if(!this.isEqualNode(currentInputBox)) {
+
+                updateFromInputBox();
+                originalText = $(this).text();
+                $(this).html('<div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM" value='+originalText+'></div>');
+                currentInputBox = this;
+              }
+              return false;
+            });
+            $(document).click( function(event) {
+              if(currentInputBox) {
+                updateFromInputBox();
+              }
+            });
+            $(document).keypress(function(event){
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if(keycode == '13'){
+                  updateFromInputBox();   
+                }
+            });
+          });
+
+          
+        </script>
     {% endassets %}
 {% endblock %}
 
@@ -12,126 +135,140 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-xs-14 text-center" style="background: gray;">
-                Week of Nov 16-22, 2014
+                <h4>Week of Nov 16-22, 2014</h4>
             </div>
-            <div class="visible-xs col-xs-7" style="background: gray;">
+            <div class="visible-xs col-xs-7 text-center" style="background: gray;">
                 In
             </div>
-            <div class="visible-xs col-xs-7" style="background: gray;">
+            <div class="visible-xs col-xs-7 text-center" style="background: gray;">
                 Out
             </div>
         </div>
         <div class="row">
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Sunday
                     </div>
                     
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Monday
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14 text-center">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Tuesday
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14 text-center">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Wednesday
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14 text-center">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Thursday
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14 text-center">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Friday
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #BDECB6;">
+                    <div class="col-sm-14 col-xs-7 in-time">
                         9:55
                     </div>
-                    <div class="col-sm-14 col-xs-7" style="background: #FF7878;">
+                    <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14 text-center">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="row">
-                    <div class="col-sm-14 col-xs-14">
+                    <div class="col-sm-14 col-xs-14 timesheet-day">
                         Saturday
                     </div>                    
-                    <div class="col-sm-14 col-xs-14 text-center" style="background: #C1F0F6;">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> 
+                    <div class="col-sm-14 col-xs-14 text-center">
+                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </div>                   
