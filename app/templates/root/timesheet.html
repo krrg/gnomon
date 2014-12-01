@@ -6,8 +6,20 @@
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
         <style>
           .timesheet-day {
+
             text-align: center;
 
+          }
+          .time {
+            padding-top: 5px;
+            background: gray;
+            padding-right: 5px;
+            padding-left: 5px;
+            cursor: pointer;
+            -webkit-user-select: none; 
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -ms-user-select: none;
           }
           .in-time {
             background: #BDECB6;
@@ -123,9 +135,55 @@
                   updateFromInputBox();   
                 }
             });
+            
+            var makeDropDown = function() {
+              var domString = '<div class="col-sm-14 col-xs-14 time"><div class="row"><div class="col-sm-14"><div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM AM/PM" style="background-color: #daf5d6"></div></div><div class="col-sm-14"><div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM AM/PM" style="background-color: #ffc7c7"></div></div><div class="col-sm-14" style="padding-bottom: 5px;"><button type="button" class="btn btn-default btn-xs add-time">Accept</button><button type="button" class="btn btn-default btn-xs reject-new">Cancel</button></div></div></div>';
+              var dropDown = $(domString);        
+              return dropDown;      
+            }
+            var dropDown = makeDropDown();
+
+
+            var currentParent = null;
+            $(".add-time").on("click", function(event) {
+              var parent = $(event.target).parents(".row").first();
+
+              parent.find(".add-time-col").hide();
+              if(currentParent !== null) {
+                currentParent.find(".add-time-col").show();
+              }
+              currentParent = parent;
+
+              $(dropDown).appendTo($(event.target).parents(".row").first());
+              $(dropDown).show();
+            });
+            $(document).on("click", ".reject-new", function(event) {
+              currentParent.find(".add-time-col").show();
+              $(dropDown).hide();
+            });
+            $(document).on("click", ".reject-new", function(event) {
+              currentParent.find(".add-time-col").show();
+              $(dropDown).hide();
+            });
           });
 
-          
+          var timesheet = {
+            "dateCreated":1417473014,
+            "clockedIn":[1417473056],
+            "clockedOut":[1417474000]
+          }
+          var initFromJson = function(json) {
+            var dateCreated = new Date(json['dateCreated']);
+            var year = dateCreated.getFullYear();
+            var month = "test";
+
+          }
+          var createWeek = function(clockInArray, clockOutArray) {
+
+          }
+          var createDay = function(clockInArray, clockOutArray) {
+
+          }
         </script>
     {% endassets %}
 {% endblock %}
@@ -157,8 +215,9 @@
                     <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
@@ -175,8 +234,8 @@
                     <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
@@ -193,8 +252,8 @@
                     <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
@@ -211,8 +270,8 @@
                     <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
@@ -229,8 +288,8 @@
                     <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
@@ -253,8 +312,8 @@
                     <div class="col-sm-14 col-xs-7 out-time">
                         10:55
                     </div>
-                    <div class="col-sm-14 col-xs-14 text-center">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
@@ -265,8 +324,8 @@
                     <div class="col-sm-14 col-xs-14 timesheet-day">
                         Saturday
                     </div>                    
-                    <div class="col-sm-14 col-xs-14 text-center">
-                        <button type="button" class="btn btn-default btn-block" style="padding: 0px">
+                    <div class="col-sm-14 col-xs-14 add-time-col">
+                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
                             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         </button>
                     </div>
