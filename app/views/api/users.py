@@ -23,6 +23,22 @@ from datetime import datetime
 #         "Not yet implemented."
 #     }), 501, None)
 
+@api.route('/users', methods=['GET'])
+def api_users_list():
+    users = []
+    if 'username' in request.args:
+        filter = request.args['username']
+        users.extend(db['users'].find({"username": filter}))
+    else:
+        users.extend(db['users'].find({}))
+
+    return jsonify({
+        "users": list(map(lambda user: {
+            "id": str(user["_id"]),
+            "username": user["username"]
+        }, users))
+    })
+
 
 @api.route('/users/<userid>', methods=['GET'])
 def api_users_get(userid):
