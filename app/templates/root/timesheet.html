@@ -165,32 +165,98 @@
               currentParent.find(".add-time-col").show();
               $(dropDown).hide();
             });
+
+
+
+            var timesheet = {
+            "dateCreated":1417000000000,
+            "clockedIn":[1417490641667],
+            "clockedOut":[1417490699999]
+            }
+            var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+            var WEEK_STAMP = 604800000;
+            var DAY_STAMP = WEEK_STAMP/7;
+            var initFromJson = function(json) {
+              clockedInArray = json['clockedIn'];
+              clockedOutArray = json['clockedOut']
+
+              var dateCreated = new Date(json['dateCreated']);
+              var year = dateCreated.getFullYear();
+              var month = dateCreated.getMonth();
+
+              var now = new Date();
+              var nowTimestamp = now.getTime();
+
+              var createdSunday = getLastSunday(dateCreated.getTime());
+
+              var clockStartIndex = 0;
+              var clockEndIndex = 0;
+              while(createdSunday < now) {
+                createdSunday.setDate(createdSunday.getDate() + 7);
+                while(clockEndIndex < clockedInArray.length && clockedInArray[clockEndIndex] < createdSunday.getTime()) {
+                  clockEndIndex ++;
+                }
+                var weekInArray = clockedInArray.slice(clockStartIndex, clockEndIndex);
+                var weekOutArray = clockedOutArray.slice(clockStartIndex, Math.min(clockEndIndex, clockedOutArray.length));
+
+                console.log("Before: " + createdSunday.toLocaleDateString())
+                console.log(weekInArray);
+                console.log(weekOutArray);
+
+                createWeek(createdSunday, weekInArray, weekOutArray);
+
+                clockStartIndex = clockEndIndex;
+              }            
+            }
+            var getLastSunday = function(timestamp) {
+              var dateCreated = new Date(timestamp);
+              dateCreated.setDate(dateCreated.getDate() - dateCreated.getDay());
+              var sunday = new Date(dateCreated.toLocaleDateString());
+              return sunday;
+            }
+            
+            var createWeek = function(date, clockInArray, clockOutArray) {
+              var outerDiv = document.createElement("div");
+              console.log(document.getElementById("weeks-container"));
+              //document.getElementById("weeks-container").appendChild(outerDiv);
+              $("#weeks-container").prepend(outerDiv);
+              outerDiv.setAttribute("class", "week-section");
+
+              var firstRowDiv = document.createElement("div");
+              outerDiv.appendChild(firstRowDiv);
+              firstRowDiv.setAttribute("class", "row");
+
+              var titleHeaderDiv = document.createElement("div");
+              firstRowDiv.appendChild(titleHeaderDiv);
+              titleHeaderDiv.setAttribute("class","col-xs-14 text-center");
+              titleHeaderDiv.setAttribute("style","background: gray;");
+
+              var titleH4 = document.createElement("h4");
+              titleHeaderDiv.appendChild(titleH4);
+              titleH4.innerHTML = "Week of "+monthNames[date.getMonth()]+" " + date.getDate()+", "+date.getFullYear();
+
+
+
+            }
+            var createDay = function(rootElementclockInArray, clockOutArray) {
+
+            }
+            initFromJson(timesheet);
+
+
+
+
           });
 
-          var timesheet = {
-            "dateCreated":1417473014,
-            "clockedIn":[1417473056],
-            "clockedOut":[1417474000]
-          }
-          var initFromJson = function(json) {
-            var dateCreated = new Date(json['dateCreated']);
-            var year = dateCreated.getFullYear();
-            var month = "test";
-
-          }
-          var createWeek = function(clockInArray, clockOutArray) {
-
-          }
-          var createDay = function(clockInArray, clockOutArray) {
-
-          }
+          
         </script>
     {% endassets %}
 {% endblock %}
 
 {% block content %}
 <div class="timesheet">
-    <div class="container-fluid">
+    <div id="weeks-container" class="container-fluid">
+      <div class="week-section">
         <div class="row">
             <div class="col-xs-14 text-center" style="background: gray;">
                 <h4>Week of Nov 16-22, 2014</h4>
@@ -333,6 +399,7 @@
             </div>                   
                   
         </div>
+      </div>
     </div>
 </div>
 {% endblock %}
