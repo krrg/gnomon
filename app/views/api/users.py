@@ -100,11 +100,10 @@ def api_users_create():
         }), 400, None)
 
 
-def users_create(username, password, email):
+def users_create(username, password, email, create_date=datetime.now()):
     salt = PasswordAuth.create_salt()
     pwhash = PasswordAuth.hash_pw(password, salt)
 
-    create_date = datetime.now()
     modified_date = datetime.now()
 
     _id = db['users'].insert({
@@ -131,5 +130,31 @@ class PasswordAuth:
         m.update(salt)
         m.update(password)
         return base64.b64encode(m.digest())
+
+
+@api.route('/users/<userid>', methods=['PUT'])
+def api_users_update(userid):
+
+    abort(501)
+
+    # if str(userid) != str(session['userid']):
+    #     return make_response(jsonify({
+    #         "error": {
+    #             "msg": "Error: You are not authorized to edit this user."
+    #         }
+    #     }), 401)
+    # try:
+    #     body = request.get_json(force=True)
+    #     user = db['users'][str(userid)]
+    #
+    #     if 'username' in body:
+    #         if db['users'].find_one(body['username']) is not None:
+    #             return make_response(jsonify({
+    #                 "error": {
+    #                     "msg": "Specified username {} is already taken!".format(body['username'])
+    #                 }
+    #             }), 400)
+
+
 
 
