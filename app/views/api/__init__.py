@@ -9,3 +9,9 @@ def api_default():
     return jsonify({
         "Response": "No method requested"
     })
+
+
+###################################
+# Add api views here:
+###################################
+import users

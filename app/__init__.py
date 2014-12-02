@@ -39,7 +39,7 @@ env.register(
 
 # Register the API blueprint.
 from app.views.api import api
-app.register_blueprint(api, url_prefix='/api/v1/')
+app.register_blueprint(api, url_prefix='/api/v1')
 
 
 #####################################################################
@@ -59,7 +59,6 @@ app.session_interface = MongoSessionInterface(host=MONGODB_HOST, port=MONGODB_PO
 from pymongo import MongoClient
 connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
 db = connection[MONGODB_DBNAME]
-
 
 #####################################################################
 #  Views
