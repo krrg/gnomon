@@ -127,8 +127,8 @@
 
     var timesheet = {
       "dateCreated":1417000000000,
-      "clockedIn":[1417000000000, 1417490641667, 1417490790000, 1417691990000],
-      "clockedOut":[1417001010000, 1417490699999, 1417490890000,1417701990000]
+      "clockedIn":[1417000000000, 1417490641667, 1417490790000, 1417691990000, 1417791990000],
+      "clockedOut":[1417001010000, 1417490699999, 1417490890000,1417701990000, 1417792990000]
     }
     var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
     var dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -272,6 +272,8 @@
       addButton.setAttribute("class", "btn btn-default btn-block add-time");
       addButton.onclick = function() {
         $("#accept-new").off('click');
+        $("#new-clock-in").val('');
+        $("#new-clock-out").val('');
         $("#accept-new").click(function(event) {
           var newClockIn = $("#new-clock-in").val();
           var newClockOut = $("#new-clock-out").val();
