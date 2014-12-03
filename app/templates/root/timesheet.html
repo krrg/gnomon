@@ -4,402 +4,400 @@
 {%block imports %}
     {% assets "css_timesheet" %}
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-        <style>
-          .timesheet-day {
-
-            text-align: center;
-
-          }
-          .time {
-            padding-top: 5px;
-            background: gray;
-            padding-right: 5px;
-            padding-left: 5px;
-            cursor: pointer;
-            -webkit-user-select: none; 
-            -moz-user-select: none;
-            -khtml-user-select: none;
-            -ms-user-select: none;
-          }
-          .in-time {
-            background: #BDECB6;
-            padding-right: 5px;
-            padding-left: 5px;
-            cursor: pointer;
-            height: 35px;
-            -webkit-user-select: none; 
-            -moz-user-select: none;
-            -khtml-user-select: none;
-            -ms-user-select: none;
-          }
-          .out-time {
-            background: #FF7878;
-            padding-right: 5px;
-            padding-left: 5px;
-            cursor: pointer;
-            height: 35px;
-            -webkit-user-select: none; 
-            -moz-user-select: none;
-            -khtml-user-select: none;
-            -ms-user-select: none;
-          }
-          .in-time:hover {
-            background: #a0e496;
-          }
-          .out-time:hover {
-            background: #ff5c5c;
-          }
-        </style>
-        <script>
-          var currentInputBox = null;
-          var originalText = null;
-          function updateFromInputBox() {
-            if(currentInputBox) {
-              var text = parseText($("input", currentInputBox).first().val());
-              if(text === null) {
-                text = originalText;
-              }
-              $(currentInputBox).html(parseText(text));
-              currentInputBox = null;
-            }
-          }
-          function parseText(text) {
-            text = text.trim();
-
-            if(text === "") {
-              return text;
-            }
-            var morning = true;
-            if(text.toLowerCase().indexOf("pm", text.length - 2) !== -1) {
-              morning = false;
-              text = text.substring(0, text.length - 2);
-            }
-            if(text.toLowerCase().indexOf("am", text.length - 2) !== -1) {
-              text = text.substring(0, text.length - 2);
-            }
-
-            var ending = " PM";
-            if(morning) {
-              ending = " AM"
-            }
-
-            var splitText = text.trim().split(":");
-            var firstNumber = parseInt(splitText[0]);
-
-            if(isNaN(firstNumber) || firstNumber < 1 || firstNumber > 12) {
-              return null;
-            }
-
-            if(splitText.length == 1) {
-              return firstNumber+":00"+ending;
-            }
-
-            var secondNumber = parseInt(splitText[1]);
-
-            if(isNaN(secondNumber) || secondNumber < 0 || secondNumber > 59) {
-              return null;
-            }
-
-            if(secondNumber < 10) {
-              return firstNumber+":0"+secondNumber+ending;
-            }
-            else {
-              return firstNumber+":"+secondNumber+ending;
-            }
-          }
-          $(document).ready( function (event) {
-
-            $(".in-time, .out-time").on("click", function(event) {
-              event.preventDefault();
-              if(currentInputBox !== null && !this.isEqualNode(currentInputBox)) {
-                updateFromInputBox();
-                return false;
-              }
-              if(!this.isEqualNode(currentInputBox)) {
-
-                updateFromInputBox();
-                originalText = $(this).text();
-                $(this).html('<div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM" value='+originalText+'></div>');
-                currentInputBox = this;
-              }
-              return false;
-            });
-            $(document).click( function(event) {
-              if(currentInputBox) {
-                updateFromInputBox();
-              }
-            });
-            $(document).keypress(function(event){
-                var keycode = (event.keyCode ? event.keyCode : event.which);
-                if(keycode == '13'){
-                  updateFromInputBox();   
-                }
-            });
-            
-            var makeDropDown = function() {
-              var domString = '<div class="col-sm-14 col-xs-14 time"><div class="row"><div class="col-sm-14"><div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM AM/PM" style="background-color: #daf5d6"></div></div><div class="col-sm-14"><div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM AM/PM" style="background-color: #ffc7c7"></div></div><div class="col-sm-14" style="padding-bottom: 5px;"><button type="button" class="btn btn-default btn-xs add-time">Accept</button><button type="button" class="btn btn-default btn-xs reject-new">Cancel</button></div></div></div>';
-              var dropDown = $(domString);        
-              return dropDown;      
-            }
-            var dropDown = makeDropDown();
-
-
-            var currentParent = null;
-            $(".add-time").on("click", function(event) {
-              var parent = $(event.target).parents(".row").first();
-
-              parent.find(".add-time-col").hide();
-              if(currentParent !== null) {
-                currentParent.find(".add-time-col").show();
-              }
-              currentParent = parent;
-
-              $(dropDown).appendTo($(event.target).parents(".row").first());
-              $(dropDown).show();
-            });
-            $(document).on("click", ".reject-new", function(event) {
-              currentParent.find(".add-time-col").show();
-              $(dropDown).hide();
-            });
-            $(document).on("click", ".reject-new", function(event) {
-              currentParent.find(".add-time-col").show();
-              $(dropDown).hide();
-            });
-
-
-
-            var timesheet = {
-            "dateCreated":1417000000000,
-            "clockedIn":[1417490641667],
-            "clockedOut":[1417490699999]
-            }
-            var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-            var WEEK_STAMP = 604800000;
-            var DAY_STAMP = WEEK_STAMP/7;
-            var initFromJson = function(json) {
-              clockedInArray = json['clockedIn'];
-              clockedOutArray = json['clockedOut']
-
-              var dateCreated = new Date(json['dateCreated']);
-              var year = dateCreated.getFullYear();
-              var month = dateCreated.getMonth();
-
-              var now = new Date();
-              var nowTimestamp = now.getTime();
-
-              var createdSunday = getLastSunday(dateCreated.getTime());
-
-              var clockStartIndex = 0;
-              var clockEndIndex = 0;
-              while(createdSunday < now) {
-                createdSunday.setDate(createdSunday.getDate() + 7);
-                while(clockEndIndex < clockedInArray.length && clockedInArray[clockEndIndex] < createdSunday.getTime()) {
-                  clockEndIndex ++;
-                }
-                var weekInArray = clockedInArray.slice(clockStartIndex, clockEndIndex);
-                var weekOutArray = clockedOutArray.slice(clockStartIndex, Math.min(clockEndIndex, clockedOutArray.length));
-
-                console.log("Before: " + createdSunday.toLocaleDateString())
-                console.log(weekInArray);
-                console.log(weekOutArray);
-
-                createWeek(createdSunday, weekInArray, weekOutArray);
-
-                clockStartIndex = clockEndIndex;
-              }            
-            }
-            var getLastSunday = function(timestamp) {
-              var dateCreated = new Date(timestamp);
-              dateCreated.setDate(dateCreated.getDate() - dateCreated.getDay());
-              var sunday = new Date(dateCreated.toLocaleDateString());
-              return sunday;
-            }
-            
-            var createWeek = function(date, clockInArray, clockOutArray) {
-              var outerDiv = document.createElement("div");
-              console.log(document.getElementById("weeks-container"));
-              //document.getElementById("weeks-container").appendChild(outerDiv);
-              $("#weeks-container").prepend(outerDiv);
-              outerDiv.setAttribute("class", "week-section");
-
-              var firstRowDiv = document.createElement("div");
-              outerDiv.appendChild(firstRowDiv);
-              firstRowDiv.setAttribute("class", "row");
-
-              var titleHeaderDiv = document.createElement("div");
-              firstRowDiv.appendChild(titleHeaderDiv);
-              titleHeaderDiv.setAttribute("class","col-xs-14 text-center");
-              titleHeaderDiv.setAttribute("style","background: gray;");
-
-              var titleH4 = document.createElement("h4");
-              titleHeaderDiv.appendChild(titleH4);
-              titleH4.innerHTML = "Week of "+monthNames[date.getMonth()]+" " + date.getDate()+", "+date.getFullYear();
-
-
-
-            }
-            var createDay = function(rootElementclockInArray, clockOutArray) {
-
-            }
-            initFromJson(timesheet);
-
-
-
-
-          });
-
-          
-        </script>
     {% endassets %}
 {% endblock %}
 
 {% block content %}
+<script>
+  var currentInputBox = null;
+  var originalText = null;
+  function updateFromInputBox() {
+    if(currentInputBox) {
+      var text = parseText($("input", currentInputBox).first().val());
+      if(text === null) {
+        text = originalText;
+      }
+      $(currentInputBox).html(parseText(text));
+      currentInputBox = null;
+    }
+  }
+  function parseText(text) {
+    text = text.trim();
+
+    if(text === "") {
+      return text;
+    }
+    var morning = true;
+    if(text.toLowerCase().indexOf("pm", text.length - 2) !== -1) {
+      morning = false;
+      text = text.substring(0, text.length - 2);
+    }
+    if(text.toLowerCase().indexOf("am", text.length - 2) !== -1) {
+      text = text.substring(0, text.length - 2);
+    }
+
+    var ending = " PM";
+    if(morning) {
+      ending = " AM"
+    }
+
+    var splitText = text.trim().split(":");
+    var firstNumber = parseInt(splitText[0]);
+
+    if(isNaN(firstNumber) || firstNumber < 1 || firstNumber > 12) {
+      return null;
+    }
+
+    if(splitText.length == 1) {
+      return firstNumber+":00"+ending;
+    }
+
+    var secondNumber = parseInt(splitText[1]);
+
+    if(isNaN(secondNumber) || secondNumber < 0 || secondNumber > 59) {
+      return null;
+    }
+
+    if(secondNumber < 10) {
+      return firstNumber+":0"+secondNumber+ending;
+    }
+    else {
+      return firstNumber+":"+secondNumber+ending;
+    }
+  }
+  $(document).ready( function (event) {
+
+    $(".in-time, .out-time").on("click", function(event) {
+      event.preventDefault();
+      if(currentInputBox !== null && !this.isEqualNode(currentInputBox)) {
+        updateFromInputBox();
+        return false;
+      }
+      if(!this.isEqualNode(currentInputBox)) {
+
+        updateFromInputBox();
+        originalText = $(this).text();
+        $(this).html('<div class="form-group"><input type="text" class="form-control input-sm error" placeholder="HH:MM" value='+originalText+'></div>');
+        currentInputBox = this;
+      }
+      return false;
+    });
+    $(document).click( function(event) {
+      if(currentInputBox) {
+        updateFromInputBox();
+      }
+    });
+    $(document).keypress(function(event){
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if(keycode == '13'){
+        updateFromInputBox();
+      }
+    });
+
+    var makeDropDown = function() {
+      var dropDown = $("#time-edit");
+      return dropDown;
+    }
+    var dropDown = makeDropDown();
+
+
+    var currentParent = null;
+    $(document).on("click", ".add-time", function(event) {
+      var parent = $(event.target).parents(".row").first();
+
+      parent.find(".add-time-col").hide();
+      if(currentParent !== null) {
+        currentParent.find(".add-time-col").show();
+      }
+      currentParent = parent;
+
+      $(dropDown).appendTo($(event.target).parents(".row").first());
+      $(dropDown).show();
+    });
+    $(document).on("click", ".reject-new", function(event) {
+      currentParent.find(".add-time-col").show();
+      $(dropDown).hide();
+    });
+    $(document).on("click", ".reject-new", function(event) {
+      currentParent.find(".add-time-col").show();
+      $(dropDown).hide();
+    });
+
+
+
+    var timesheet = {
+      "dateCreated":1417000000000,
+      "clockedIn":[1417000000000, 1417490641667, 1417490790000, 1417691990000],
+      "clockedOut":[1417001010000, 1417490699999, 1417490890000,1417701990000]
+    }
+    var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+    var dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var WEEK_STAMP = 604800000;
+    var DAY_STAMP = WEEK_STAMP/7;
+    var initFromJson = function(json) {
+      var clockedInArray = json['clockedIn'];
+      var clockedOutArray = json['clockedOut']
+
+      console.log(clockedInArray);
+
+      var dateCreated = new Date(json['dateCreated']);
+      var year = dateCreated.getFullYear();
+      var month = dateCreated.getMonth();
+
+      var now = new Date();
+      var nowTimestamp = now.getTime();
+
+      var createdSunday = getLastSunday(dateCreated.getTime());
+
+      var clockStartIndex = 0;
+      var clockEndIndex = 0;
+      while(createdSunday < now) {
+        createdSunday.setDate(createdSunday.getDate() + 7);
+        while(clockEndIndex < clockedInArray.length && clockedInArray[clockEndIndex] < createdSunday.getTime()) {
+          clockEndIndex ++;
+        }
+        var weekInArray = clockedInArray.slice(clockStartIndex, clockEndIndex);
+        var weekOutArray = clockedOutArray.slice(clockStartIndex, Math.min(clockEndIndex, clockedOutArray.length));
+        var prevWeek = new Date(createdSunday.getTime());
+        prevWeek.setDate(prevWeek.getDate() - 7);
+
+        createWeek(prevWeek, weekInArray, weekOutArray);
+
+        clockStartIndex = clockEndIndex;
+      }
+    }
+    var getLastSunday = function(timestamp) {
+      var dateCreated = new Date(timestamp);
+      dateCreated.setDate(dateCreated.getDate() - dateCreated.getDay());
+      var sunday = new Date(dateCreated.toLocaleDateString());
+      return sunday;
+    }
+
+    var createWeek = function(date, clockedInArray, clockedOutArray) {
+      var outerDiv = document.createElement("div");
+
+      $("#weeks-container").prepend(outerDiv);
+      outerDiv.setAttribute("class", "week-section");
+
+      var firstRowDiv = document.createElement("div");
+      outerDiv.appendChild(firstRowDiv);
+      firstRowDiv.setAttribute("class", "row");
+
+      var titleHeaderDiv = document.createElement("div");
+      firstRowDiv.appendChild(titleHeaderDiv);
+      titleHeaderDiv.setAttribute("class","col-xs-14 text-center");
+      titleHeaderDiv.setAttribute("style","background: gray;");
+
+      var titleH4 = document.createElement("h4");
+      titleHeaderDiv.appendChild(titleH4);
+      titleH4.innerHTML = "Week of "+monthNames[date.getMonth()]+" " + date.getDate()+", "+date.getFullYear();
+
+      var inHelpDiv = document.createElement("div");
+      firstRowDiv.appendChild(inHelpDiv);
+      inHelpDiv.setAttribute("class", "visible-xs col-xs-7 text-center");
+      inHelpDiv.setAttribute("style", "background: gray;");
+      inHelpDiv.innerHTML = "In";
+
+      var outHelpDiv = document.createElement("div");
+      firstRowDiv.appendChild(outHelpDiv);
+      outHelpDiv.setAttribute("class", "visible-xs col-xs-7 text-center");
+      outHelpDiv.setAttribute("style", "background: gray;");
+      outHelpDiv.innerHTML = "Out";
+
+      var secondRowDiv = document.createElement("div");
+      outerDiv.appendChild(secondRowDiv);
+      secondRowDiv.setAttribute("class", "row");
+      var clockStartIndex = 0;
+      var clockEndIndex = 0;
+      for(var i=0; i<7; i++) {
+        var startDate = new Date(date.getTime());
+        startDate.setDate(date.getDate() + i);
+        var endDate =  new Date(date.getTime());
+        endDate.setDate(date.getDate() + i + 1);
+
+
+        while(clockEndIndex < clockedInArray.length && clockedInArray[clockEndIndex] < endDate.getTime()) {
+          console.log(clockedInArray)
+          console.log(new Date(clockedInArray[clockEndIndex]));
+
+          clockEndIndex ++;
+
+        }
+        var dayInArray = clockedInArray.slice(clockStartIndex, clockEndIndex);
+        var dayOutArray = clockedOutArray.slice(clockStartIndex, Math.min(clockEndIndex, clockedOutArray.length));
+
+        createDay(i, secondRowDiv, dayInArray, dayOutArray, startDate);
+
+        clockStartIndex = clockEndIndex;
+      }
+
+    }
+    var createDay = function(dayNumber, rootElement, clockInArray, clockOutArray, startDate) {
+      var outerColumnDiv = document.createElement("div");
+      rootElement.appendChild(outerColumnDiv);
+      outerColumnDiv.setAttribute("class","col-sm-2");
+
+      var rowDiv = document.createElement("div");
+      outerColumnDiv.appendChild(rowDiv);
+      rowDiv.setAttribute("class", "row");
+
+      var dayOfWeekDiv = document.createElement("div");
+      rowDiv.appendChild(dayOfWeekDiv);
+      dayOfWeekDiv.setAttribute("class", "col-sm-14 col-xs-14 timesheet-day");
+      dayOfWeekDiv.innerHTML = dayNames[dayNumber];
+
+      for(var i=0; i<clockInArray.length; i++) {
+
+        var inTime = new Date(clockInArray[i]);
+        var inDiv = document.createElement("div");
+        rowDiv.appendChild(inDiv);
+        inDiv.setAttribute("class", "col-sm-14 col-xs-7 in-time");
+        var timeStr = getBasicTime(inTime);
+        inDiv.innerHTML = getBasicTime(inTime);
+
+        if(i < clockOutArray.length) {
+          var outDiv = document.createElement("div");
+          rowDiv.appendChild(outDiv);
+          outDiv.setAttribute("class", "col-sm-14 col-xs-7 out-time");
+          outDiv.innerHTML = getBasicTime(new Date(clockOutArray[i]));
+        }
+      }
+
+      var addButtonDiv = document.createElement("div");
+      rowDiv.appendChild(addButtonDiv);
+      addButtonDiv.setAttribute("class", "col-sm-14 col-xs-14 add-time-col");
+
+      var addButton = document.createElement("button");
+      addButtonDiv.appendChild(addButton);
+      addButton.setAttribute("class", "btn btn-default btn-block add-time");
+      addButton.onclick = function() {
+        $("#accept-new").off('click');
+        $("#accept-new").click(function(event) {
+          var newClockIn = $("#new-clock-in").val();
+          var newClockOut = $("#new-clock-out").val();
+
+          var clockInMap = parseTextHourMinute(newClockIn);
+          var clockOutMap = parseTextHourMinute(newClockOut);
+
+          var alertString = "";
+
+          if(clockInMap) {
+            var inDate = new Date(startDate.getTime());
+            inDate.setHours(inDate.getHours() + clockInMap['hour']);
+            inDate.setMinutes(inDate.getMinutes() + clockInMap['minute']);
+            alertString += "Clock In: "+inDate.toLocaleString() +"\n";
+          }
+          if(clockOutMap) {
+            var outDate = new Date(startDate.getTime());
+            outDate.setHours(outDate.getHours() + clockOutMap['hour']);
+            outDate.setMinutes(outDate.getMinutes() + clockOutMap['minute']);
+            alertString += "Clock Out: " + outDate.toLocaleString();
+          }
+          if(alertString.length == 0) {
+            alertString = "Error: Nothing to add";
+          }
+          alert(alertString);
+        });
+      }
+
+      var addIcon = document.createElement("span");
+      addButton.appendChild(addIcon);
+      addIcon.setAttribute("class", "glyphicon glyphicon-plus-sign");
+      addIcon.setAttribute("aria-hidden", "true");
+    }
+    function getInAndOutTimes() {
+
+    }
+    function parseTextHourMinute(text) {
+      text = text.trim();
+
+      if(text === "") {
+        return text;
+      }
+      var hour = 0;
+      var minute = 0;
+      var morning = true;
+      if(text.toLowerCase().indexOf("pm", text.length - 2) !== -1) {
+        morning = false;
+        text = text.substring(0, text.length - 2);
+      }
+      if(text.toLowerCase().indexOf("am", text.length - 2) !== -1) {
+        text = text.substring(0, text.length - 2);
+      }
+
+      var splitText = text.trim().split(":");
+      var firstNumber = parseInt(splitText[0]);
+
+      if(isNaN(firstNumber) || firstNumber < 1 || firstNumber > 12) {
+        return null;
+      }
+      hour = firstNumber;
+      if(!morning && hour != 12) {
+        hour += 12;
+      }
+      if(morning && hour == 12) {
+        hour = 0;
+      }
+
+      if(splitText.length == 1) {
+        return {"hour":hour, "minute":minute};
+      }
+
+      var secondNumber = parseInt(splitText[1]);
+
+      if(isNaN(secondNumber) || secondNumber < 0 || secondNumber > 59) {
+        return null;
+      }
+      minute = secondNumber;
+      return {"hour":hour, "minute":minute};
+    }
+    function getBasicTime(date) {
+      var hours = date.getHours();
+      var mid = "AM";
+      if(hours == 0) {
+        hours = 12;
+      }
+      else if( hours > 12) {
+        hours = hours % 12;
+        mid = "PM";
+      }
+      return hours + ":"+getTwoDigitStr(date.getMinutes())+":"+getTwoDigitStr(date.getSeconds())+" "+mid;
+    }
+    function getTwoDigitStr(val) {
+      if(val < 10)
+      return "0" + val;
+      return val;
+    }
+    initFromJson(timesheet);
+  });
+
+
+</script>
 <div class="timesheet">
-    <div id="weeks-container" class="container-fluid">
-      <div class="week-section">
-        <div class="row">
-            <div class="col-xs-14 text-center" style="background: gray;">
-                <h4>Week of Nov 16-22, 2014</h4>
-            </div>
-            <div class="visible-xs col-xs-7 text-center" style="background: gray;">
-                In
-            </div>
-            <div class="visible-xs col-xs-7 text-center" style="background: gray;">
-                Out
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Sunday
-                    </div>
-                    
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Monday
-                    </div>
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Tuesday
-                    </div>
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Wednesday
-                    </div>
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Thursday
-                    </div>
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Friday
-                    </div>
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 in-time">
-                        9:55
-                    </div>
-                    <div class="col-sm-14 col-xs-7 out-time">
-                        10:55
-                    </div>
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="row">
-                    <div class="col-sm-14 col-xs-14 timesheet-day">
-                        Saturday
-                    </div>                    
-                    <div class="col-sm-14 col-xs-14 add-time-col">
-                        <button type="button" class="btn btn-default btn-block add-time" style="padding: 0px">
-                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>                   
-                  
+
+  <div class="col-sm-14 col-xs-14 time" style="display:none;" id="time-edit">
+    <div class="row">
+      <div class="col-sm-14">
+        <div class="form-group">
+          <input type="text" class="form-control input-sm" id="new-clock-in" placeholder="HH:MM AM/PM" style="background-color: #daf5d6">
         </div>
       </div>
+      <div class="col-sm-14">
+        <div class="form-group">
+          <input type="text" class="form-control input-sm error" id="new-clock-out" placeholder="HH:MM AM/PM" style="background-color: #ffc7c7">
+          </div>
+        </div>
+        <div class="col-sm-14" style="padding-bottom: 5px;">
+          <button type="button" class="btn btn-default btn-xs" id="accept-new">Accept</button>
+          <button type="button" class="btn btn-default btn-xs reject-new">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="weeks-container" class="container-fluid">
+
+
+
     </div>
 </div>
 {% endblock %}
