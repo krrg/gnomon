@@ -2,93 +2,15 @@
 
 
 {%block imports %}
-    {% assets "css_timesheet" %}
-        <script src="/static/js/timeTools.js"></script>
-        <style>
-        .clock-in-box {
-          margin: 10px;
-          border: 2px solid;
-          border-radius: 10px;
-        }
-        .clock-in-title {
-          /*background: blue;*/
-
-        }
-        .clock-in-outer {
-          /*background: gray;*/
-        }
-        .clock-in-week {
-          margin-bottom: 10px;
-          /*background: green;*/
-        }
-        .clock-in-day {
-          margin-bottom: 10px;
-          /*background: yellow;*/
-        }
-        .clock-in-button-area {
-
-        }
-        .clock-in-bottom-row {
-          padding: 10px;
-        }
-        </style>
+    {% assets "css_clockin" %}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
     {% endassets %}
+    <script src="/static/js/timeTools.js"></script>
+    <script src="/static/js/clockIn.js"></script>
 {% endblock %}
 
 {% block content %}
-<script>
-var timesheet = {
-  "dateCreated":1417000000000,
-  "clockedIn":[1417000000000, 1417490641667, 1417490790000, 1417691990000, 1417791990000],
-  "clockedOut":[1417001010000, 1417490699999, 1417490890000,1417701990000, 1417792990000]
-}
-  $(document).ready(function() {
-    var rowDiv = createNewRow();
-
-    $(rowDiv).append(createNewClock(timesheet));
-    $(rowDiv).append(createNewClock(timesheet));
-
-    function createNewClock(timesheet) {
-
-      var weeks = TimeTools.getWeeks(timesheet['clockedIn'], timesheet['clockedOut']);
-      var weekTime = 0;
-      var dayTime = 0;
-      if(weeks.length > 0) {
-        var week = weeks[weeks.length-1];
-        weekTime = TimeTools.getTimeTotal(week['in'], week['out']);
-
-        var days = TimeTools.getDays(week['in'], week['out']);
-        if(days.length > 0) {
-          var day = days[days.length-1];
-          day = TimeTools.getTimeTotal(day['in'], week['out']);
-        }
-      }
-      
-      var cloned = $("#clock-in-template").clone();
-      cloned.removeAttr('id');
-      cloned.removeAttr('style');
-
-      cloned.find(".clock-in-title").html("<h3>Name Of Job</h3>")
-      cloned.find(".clock-in-week").html("<strong>Week:</strong> "+TimeTools.msToReadable(weekTime));
-      cloned.find(".clock-in-day").html("<strong>Day:</strong> "+TimeTools.msToReadable(dayTime));
-
-      return cloned;
-    }
-    function createNewRow() {
-      var rowDiv = $(document.createElement("div"));
-      $("#clock-in-list").append(rowDiv);
-      rowDiv.attr("class", "row");
-
-      var fillerColumn = $(document.createElement("div"));
-      rowDiv.append(fillerColumn);
-      fillerColumn.attr("class", "col-sm-1 col-md-3");
-
-      return rowDiv;
-    }
-  });
-</script>
 <div id="clock-in-list" class="clock-in-list container-fluid">
-</div>
 </div>
 <div id="clock-in-template" style="display: none" class="col-sm-5 col-md-3 clock-in-box">
   <div class="row clock-in-outer">

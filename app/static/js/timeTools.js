@@ -3,6 +3,11 @@ function TimeTools () {
 }
 TimeTools.monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 TimeTools.dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+TimeTools.testTimesheet = {
+  "dateCreated":1417000000000,
+  "clockedIn":[1417000000000, 1417490641667, 1417490790000, 1417691990000, 1417791990000],
+  "clockedOut":[1417001010000, 1417490699999, 1417490890000,1417701990000, 1417792990000]
+};
 TimeTools.getLastSunday = function(timestamp) {
   var dateCreated = new Date(timestamp);
   dateCreated.setDate(dateCreated.getDate() - dateCreated.getDay());
