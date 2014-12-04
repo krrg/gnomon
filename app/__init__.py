@@ -42,6 +42,15 @@ env.register(
     )
 )
 
+env.register(
+    'css_manageOrganizations',
+    assets.Bundle(
+        'manageOrganizations.scss',
+        filters='scss',
+        output='_gen/css_manageOrganizations.css'
+    )
+)
+
 #####################################################################
 #  Blueprints
 #####################################################################

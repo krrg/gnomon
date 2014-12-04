@@ -24,7 +24,7 @@ $(document).ready(function() {
     cloned.removeAttr('id');
     cloned.removeAttr('style');
 
-    cloned.find(".clock-in-title").html("<h3>Name Of Job</h3>")
+    cloned.find(".clock-in-title-text").html("Name Of Job")
     cloned.find(".clock-in-week").html("<strong>Week:</strong> "+TimeTools.msToReadable(weekTime));
     cloned.find(".clock-in-day").html("<strong>Day:</strong> "+TimeTools.msToReadable(dayTime));
 
@@ -37,7 +37,7 @@ $(document).ready(function() {
 
     var fillerColumn = $(document.createElement("div"));
     rowDiv.append(fillerColumn);
-    fillerColumn.attr("class", "col-sm-1 col-md-3");
+    fillerColumn.attr("class", "col-sm-1 col-md-2 col-lg-3");
 
     return rowDiv;
   }
