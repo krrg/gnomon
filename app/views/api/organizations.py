@@ -1,18 +1,10 @@
-from app.views.api import api
+from app.views.api import api, expect_json_body
 from flask import request, session, jsonify, abort, make_response
 from app.__init__ import db
 from auth import auth_required
 
 # Mongo id lookups
 from bson import ObjectId
-
-# Password hashing and salting
-from os import urandom
-import hashlib
-import base64
-
-# Time stamps
-from datetime import datetime
 
 
 @api.route("/organizations", methods=['GET'])
@@ -56,14 +48,8 @@ def api_organization_get(orgid):
 
 @api.route("/organizations", methods=['POST'])
 @auth_required
-def api_organization_create():
-    body = request.get_json(force=True)
-    if body is None:
-        return make_response(jsonify({
-            "error": {
-                "msg": "Could not parse JSON request!  Is it well-formed?"
-            }
-        }), 400)
+@expect_json_body
+def api_organization_create(body):
     try:
         name = body['organization']['name']
         oid = db['organizations'].insert({
@@ -85,21 +71,15 @@ def api_organization_create():
 
 @api.route("/organizations/<orgid>", methods=['PUT'])
 @auth_required
-def api_organization_update(orgid):
-    body = request.get_json(force=True)
-    if body is None:
-        return make_response(jsonify({
-            "error": {
-                "msg": "Could not parse JSON request."
-            }
-        }))
+@expect_json_body
+def api_organization_update(orgid, body):
     try:
         name = body['organization']['name']
-        org = db['organizations'].find_one({"_id": ObjectId(orgid)})
+        org = db['organizations'].find_one({"_id": ObjectId(orgid), "ownerid": session['userid']})
         if org is None:
             return make_response(jsonify({
                 "error": {
-                    "msg": "Organization with id '{}' could not be found.".format(orgid)
+                    "msg": "Organization with id '{}' could not be found (do you own this organization?)".format(orgid)
                 }
             }))
         org['name'] = name
@@ -118,5 +98,7 @@ def api_organization_update(orgid):
         }))
 
 
-
-
+@api.route("/organization/<orgid>", methods=['DELETE'])
+@auth_required
+def api_organization_delete(orgid):
+    abort(501)
