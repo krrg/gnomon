@@ -1,6 +1,9 @@
+# Flask
 from app.views.api import api
 from flask import request, session, jsonify, abort, make_response
 from app.__init__ import db
+from auth import auth_required
+
 
 # Mongo id lookups
 from bson import ObjectId
@@ -13,15 +16,6 @@ import base64
 # Time stamps
 from datetime import datetime
 
-
-# import flask
-
-
-# @api.route('/users/<userid>', methods=['GET'])
-# def api_users_list(userid):
-#     return flask.make_response(flask.jsonify({
-#         "Not yet implemented."
-#     }), 501, None)
 
 @api.route('/users', methods=['GET'])
 def api_users_list():
@@ -104,7 +98,7 @@ def users_create(username, password, email, create_date=datetime.now()):
     salt = PasswordAuth.create_salt()
     pwhash = PasswordAuth.hash_pw(password, salt)
 
-    modified_date = datetime.now()
+    modified_date = datetime.utcnow()
 
     _id = db['users'].insert({
         "username": username,
@@ -118,6 +112,9 @@ def users_create(username, password, email, create_date=datetime.now()):
 
 
 class PasswordAuth:
+
+    def __init__(self):
+        pass
 
     @staticmethod
     def create_salt():
@@ -133,27 +130,53 @@ class PasswordAuth:
 
 
 @api.route('/users/<userid>', methods=['PUT'])
+@auth_required
 def api_users_update(userid):
+    if str(userid) != str(session['userid']):
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error: You are not authorized to edit this user."
+            }
+        }), 401)
+    try:
+        body = request.get_json(force=True)
+        user = db['users'].find_one({"_id": ObjectId(userid)})
+        if not any(map(lambda x: x in body, ['username', 'password', 'email'])):
+            user['modified_date'] = datetime.utcnow()
+        if 'username' in body:
+            if db['users'].find_one(body['username']) is not None:
+                return make_response(jsonify({
+                    "error": {
+                        "msg": "Specified username {} is already taken!".format(body['username'])
+                    }
+                }), 400, None)
+            else:
+                user['username'] = body['username']
+        if 'password' in body:
+            user['password_salt'] = PasswordAuth.create_salt()
+            user['password'] = PasswordAuth.hash_pw(body['password'], user['password_salt'])
+        if 'email' in body:
+            user['email'] = body['email']
 
-    abort(501)
+        db['users'].save(user)
 
-    # if str(userid) != str(session['userid']):
-    #     return make_response(jsonify({
-    #         "error": {
-    #             "msg": "Error: You are not authorized to edit this user."
-    #         }
-    #     }), 401)
-    # try:
-    #     body = request.get_json(force=True)
-    #     user = db['users'][str(userid)]
-    #
-    #     if 'username' in body:
-    #         if db['users'].find_one(body['username']) is not None:
-    #             return make_response(jsonify({
-    #                 "error": {
-    #                     "msg": "Specified username {} is already taken!".format(body['username'])
-    #                 }
-    #             }), 400)
+
+        return make_response(jsonify({
+            "msg": "success"
+        }))
+
+    except KeyError:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Malformed request.  No more information was available."
+            }
+        }), 400)
+    except TypeError:
+        return make_response(jsonify({
+            "error": {
+                "msg": "The specified user id {} could not be found!".format(userid)
+            }
+        }))
 
 
 

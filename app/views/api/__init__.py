@@ -14,5 +14,5 @@ def api_default():
 ###################################
 # Add api views here:
 ###################################
-import users
 import auth
+import users
