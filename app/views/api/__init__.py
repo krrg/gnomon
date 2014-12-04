@@ -16,3 +16,4 @@ def api_default():
 ###################################
 import auth
 import users
+import organizations

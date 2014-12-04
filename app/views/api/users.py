@@ -55,9 +55,7 @@ def api_users_get(userid):
 
 @api.route("/users", methods=['POST'])
 def api_users_create():
-    print request.content_type
     body = request.get_json(force=True)
-    print str(body)
 
     if body is None:
         return make_response(jsonify({
@@ -141,7 +139,7 @@ def api_users_update(userid):
     try:
         body = request.get_json(force=True)
         user = db['users'].find_one({"_id": ObjectId(userid)})
-        if not any(map(lambda x: x in body, ['username', 'password', 'email'])):
+        if any(map(lambda x: x in body, ['username', 'password', 'email'])):
             user['modified_date'] = datetime.utcnow()
         if 'username' in body:
             if db['users'].find_one(body['username']) is not None:
