@@ -1,0 +1,23 @@
+{% extends "/base.html" %}
+
+
+{%block imports %}
+{% assets "css_manageOrganizations" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+{% endassets %}
+{% endblock %}
+
+{% block content %}
+<div id="clock-in-list" class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6 org-detail-outer">
+      <div class="org-detail-inner">
+        Some Job Name
+        <a href="#" class="glyphicon glyphicon-trash pull-right" aria-hidden="true"></a> 
+        <a href="#" class="glyphicon glyphicon-edit pull-right" aria-hidden="true"></a>
+      <div>
+    </div>
+  </div>
+</div>
+{% endblock %}

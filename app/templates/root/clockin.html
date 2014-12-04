@@ -1,5 +1,6 @@
 {% extends "/base.html" %}
 
+{% import "/login/widget.html" as login_widget %}
 
 {%block imports %}
     {% assets "css_clockin" %}
@@ -11,33 +12,45 @@
 
 {% block content %}
 <div id="clock-in-list" class="clock-in-list container-fluid">
+<!-- <div class="row">
+  <div class="col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3">
+    <form class="navbar-form" role="search">
+      <div class="form-group" style="width: 100%">
+        <input type="text" class="form-control" placeholder="Search" style="width: 100%">
+      </div>
+    </form>
+  </div>
+</div> -->
 </div>
-<div id="clock-in-template" style="display: none" class="col-sm-5 col-md-3 clock-in-box">
-  <div class="row clock-in-outer">
-    <div class="col-sm-12 text-center clock-in-title">
-      <h3>Teaching Assistant</h3>
-    </div>
-    <div class="col-sm-12">
-      <div class="row clock-in-bottom-row">
-        <div class="col-sm-6">
-          <div class="row">
-            <div class="col-md-12 clock-in-week">
-              Week
-            </div>
-            <div class="col-sm-12 clock-in-day">
-              Day
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 clock-in-button-area">
-          <div class="row">
-            <div class="col-sm-12 text-center">
-              <button class="btn btn-success btn-block">Clock-In</button>
+<div id="clock-in-template" style="display: none" class="col-sm-5 col-md-4 col-lg-3 clock-in-box">
+  <div class="clock-in-outer">
+    <div class="row">
+      <div class="col-sm-12 text-center clock-in-title">
+        <img class="clock-in-image" src=http://www.gravatar.com/avatar/205e460b479e2e5b48a07710c08d51?f=y&d=identicon></img>
+        <h3 class="clock-in-title-text">Teaching Assistant</h3>
+      </div>
+      <div class="col-sm-12">
+        <div class="row clock-in-bottom-row">
+          <div class="col-sm-6">
+            <div class="row">
+              <div class="col-md-12 clock-in-week">
+                Week
+              </div>
+              <div class="col-sm-12 clock-in-day">
+                Day
+              </div>
             </div>
           </div>
-          <div class="row center-block">
-            <div class="col-sm-12 text-center">
-              <a href="">timesheet</a>
+          <div class="col-sm-6 clock-in-button-area">
+            <div class="row">
+              <div class="col-sm-12 text-center">
+                <button class="btn btn-success btn-block">Clock-In</button>
+              </div>
+            </div>
+            <div class="row center-block">
+              <div class="col-sm-12 text-center">
+                <a href="">timesheet</a>
+              </div>
             </div>
           </div>
         </div>

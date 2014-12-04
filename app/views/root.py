@@ -16,3 +16,11 @@ def timesheet():
 @app.route('/clockin')
 def clockin():
     return render_template("root/clockin.html")
+
+@app.route('/manageOrganizations')
+def manageOrganizations():
+    return render_template("root/manageOrganizations.html")
+
+@app.route('/login')
+def login():
+    return render_template("root/login.html")
