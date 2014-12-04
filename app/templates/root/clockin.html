@@ -1,0 +1,48 @@
+{% extends "/base.html" %}
+
+
+{%block imports %}
+    {% assets "css_clockin" %}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+    {% endassets %}
+    <script src="/static/js/timeTools.js"></script>
+    <script src="/static/js/clockIn.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="clock-in-list" class="clock-in-list container-fluid">
+</div>
+<div id="clock-in-template" style="display: none" class="col-sm-5 col-md-3 clock-in-box">
+  <div class="row clock-in-outer">
+    <div class="col-sm-12 text-center clock-in-title">
+      <h3>Teaching Assistant</h3>
+    </div>
+    <div class="col-sm-12">
+      <div class="row clock-in-bottom-row">
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-md-12 clock-in-week">
+              Week
+            </div>
+            <div class="col-sm-12 clock-in-day">
+              Day
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 clock-in-button-area">
+          <div class="row">
+            <div class="col-sm-12 text-center">
+              <button class="btn btn-success btn-block">Clock-In</button>
+            </div>
+          </div>
+          <div class="row center-block">
+            <div class="col-sm-12 text-center">
+              <a href="">timesheet</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -12,3 +12,7 @@ def root_index():
 @app.route('/timesheet.html')
 def timesheet():
     return render_template("root/timesheet.html")
+
+@app.route('/clockin')
+def clockin():
+    return render_template("root/clockin.html")

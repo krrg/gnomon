@@ -33,6 +33,15 @@ env.register(
     )
 )
 
+env.register(
+    'css_clockin',
+    assets.Bundle(
+        'clockin.scss',
+        filters='scss',
+        output='_gen/css_clockin.css'
+    )
+)
+
 #####################################################################
 #  Blueprints
 #####################################################################
