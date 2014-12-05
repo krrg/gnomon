@@ -1,0 +1,84 @@
+{% extends "/base.html" %}
+
+{%block imports %}
+
+  {% assets "css_searchUsers" %}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {% endassets %}
+  <script src="/static/js/searchUsers.js"></script>
+
+{% endblock %}
+
+{% block content %}
+<div id="user-list-outer" class="container-fluid">
+  <div class="row">
+    <div id="user-list-inner" class="col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
+      <div class="row search-bar-row">
+        <div class="form-group">
+          <div class="col-sm-12">
+            <input type="text" class="form-control" id="search-bar" placeholder="Search">
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+<div id="person-template" class="col-sm-4 col-lg-3" style="display: none">
+  <div class="outer-person">
+    <div class="inner-person">
+      <div class="row">
+        <div class="col-xs-4">
+          <img class="img-responsive" src=http://www.gravatar.com/avatar/205e460b479e2e5b48a07710c08d51?f=y&d=identicon></img>
+        </div>
+        <div class="col-xs-8 person-info-wrapper" style="word-wrap: break-word;">
+          <!-- <p class="person-name"></p> -->
+          <p class="person-username"></p>
+          <button type="button" class="btn btn-default btn-xs btn-block">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="person-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="person-model-title">Modal title</h4>
+      </div>
+      <div class="modal-body container-fluid">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="dropdown" id="organization-selector">
+              <button class="btn btn-default btn-block dropdown-toggle" type="button" id="organization-selector-button" data-toggle="dropdown" aria-expanded="true">
+                <span id="organization-selector-text">
+                  Select Organization
+                </span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
+              </ul>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="dropdown" id="job-selector">
+              <button class="btn btn-default btn-block dropdown-toggle" type="button" id="job-selector-button" data-toggle="dropdown" aria-expanded="true">
+                <span id="job-selector-text">
+                  Select Job
+                </span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="add-person-button">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
