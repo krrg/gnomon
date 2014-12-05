@@ -1,8 +1,19 @@
+$edgesize: 100px;
+$edgesizeextra: $edgesize + 5;
+
 .org-detail-outer {
   padding: 5px;
 }
 .org-detail-inner {
   border: 2px solid;
-  border-radius: 10px;
+  border-radius: 5px;
   padding:10px;
+}
+.left-content {
+  width: calc(100% - #{$edgesizeextra});
+  display: inline-block;
+}
+.right-content {
+  width:  $edgesize;
+  display: inline-block;
 }
