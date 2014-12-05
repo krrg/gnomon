@@ -104,7 +104,7 @@ class Timesheet:
     def get_user_viewable(jobId=None, organizationId=None, userId=None, status=None):
         mine = db['timesheets'].find({"userid": session['userid']})
         mine = mine if mine else []
-        owned = Timesheet.__get_owned_timesheets()
+        owned = Timesheet.__get_owned_timesheets(orgid=organizationId)
 
         timesheet_map = {}
 
