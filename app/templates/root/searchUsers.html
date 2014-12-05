@@ -4,7 +4,18 @@
 <script>
 
   $(document).ready(function() {
+    var selectedJob = null;
+    var selectedOrg = null;
+
+
     createUserList();
+    getOrganizations().done(function(data){
+      console.log(data);
+      var organizations = data['organizations'];
+      for(var i=0; i<organizations.length; i++) {
+        createOrganzationItem(organizations[i]);
+      }
+    });
     $("#search-bar").on('input', function() {
 
       var query = $.trim($(this).val()).toLowerCase();
@@ -20,48 +31,70 @@
       });
     });
 
-    $('#organization-selector .dropdown-menu li a').click(function(e)
-    {
-      var newHeading = $(this).text();
-      $('#organization-selector-text').html(newHeading);
-    });
-    $('#job-selector .dropdown-menu li a').click(function(e)
+    $(document).on('click','#job-selector .dropdown-menu li a', function(e)
     {
       var newHeading = $(this).text();
       $('#job-selector-text').html(newHeading);
     });
-  });
-  function createPerson(person) {
-    var cloned = $("#person-template").clone();
-    cloned.removeAttr('id');
-    cloned.removeAttr('style');
-    cloned.addClass('person-active');
-    $("#user-list-inner").append(cloned);
+    function createOrganzationItem(organization) {
+      var dropdown = $("#organization-selector .dropdown-menu").first();
+      var id = organization['id'];
+      var organizationItem = $('<li role="presentation"><a role="menuitem" tabindex="-1" href="#">' + organization['name'] + '</a></li>');
+      dropdown.append(organizationItem);
+      organizationItem.click(function() {
+        var selectedOrg = id;
+        var newHeading = $(this).text();
+        $('#organization-selector-text').html(newHeading);
+        $('#job-selector .dropdown-menu').html('');
+        $('#job-selector-text').html("Select Job");
+        $('#job-selector-button').removeAttr("disabled");
+      });
+    }
+    function createPerson(person) {
+      var cloned = $("#person-template").clone();
+      cloned.removeAttr('id');
+      cloned.removeAttr('style');
+      cloned.addClass('person-active');
+      $("#user-list-inner").append(cloned);
 
-    cloned.find(".person-username").html("<p>"+person['username']+"</p>");
-    cloned.find("button").click(function() {
-      var modal = $('#person-modal');
-      modal.find(".modal-title").html(person['username']);
-      modal.modal('show')
-
-    });
-    cloned.find(".img-responsive").attr('src', 'http://www.gravatar.com/avatar/'+person['id']+'?f=y&d=identicon');
-  }
-  function createUserList() {
-    $.ajax({
-      type: "GET",
-      url: "/api/v1/users",
-      dataType: "json",
-      success: function(result) {
-        var users = result['users'];
-
-        for(var i=0; i<users.length; i++) {
-          createPerson(users[i]);
+      cloned.find(".person-username").html("<p>"+person['username']+"</p>");
+      cloned.find("button").click(function() {
+        var modal = $('#person-modal');
+        modal.find(".modal-title").html(person['username']);
+        $('#organization-selector-text').html("Select Organization");
+        $('#job-selector-text').html("Select Job");
+        $('#job-selector-button').attr("disabled","disabled");
+        $('#add-person-button').attr("disabled","disabled");
+        modal.modal('show');
+        selectedJob = null;
+        selectedOrg = null;
+      });
+      cloned.find(".img-responsive").attr('src', 'http://www.gravatar.com/avatar/'+person['id']+'?f=y&d=identicon');
+    }
+    function createUserList() {
+      $.ajax({
+        type: "GET",
+        url: "/api/v1/users",
+        dataType: "json",
+        success: function(result) {
+          var users = result['users'];
+          for(var i=0; i<users.length; i++) {
+            createPerson(users[i]);
+          }
+        },
+        error: function(xhr,status,error) {
+          console.log(xhr);
         }
-      },
-      error: function(xhr,status,error) {
-        console.log(xhr);
-      }
+      });
+    }
+  });
+
+
+  function getOrganizations() {
+    return $.ajax({
+      type: "GET",
+      url: "/api/v1/organizations",
+      dataType: "json"
     });
   }
 
@@ -130,8 +163,8 @@
           <img class="img-responsive" src=http://www.gravatar.com/avatar/205e460b479e2e5b48a07710c08d51?f=y&d=identicon></img>
         </div>
         <div class="col-xs-8 person-info-wrapper" style="word-wrap: break-word;">
-          <!-- <p class="person-name">Curtis Wigington</p> -->
-          <p class="person-username">cwigs</p>
+          <!-- <p class="person-name"></p> -->
+          <p class="person-username"></p>
           <button type="button" class="btn btn-default btn-xs btn-block">Add</button>
         </div>
       </div>
@@ -157,9 +190,9 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">One Job</a></li>
+                <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="#">One Job</a></li>
                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another Job</a></li>
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Yet another job</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Yet another job</a></li> -->
               </ul>
             </div>
           </div>
@@ -181,8 +214,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Add</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="add-person-button">Add</button>
       </div>
     </div>
   </div>
