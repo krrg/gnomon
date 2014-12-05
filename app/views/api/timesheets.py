@@ -35,14 +35,14 @@ def api_timesheet_get(sheetid):
         }), 401)
 
 
-# @api.route("/timesheets", methods=['GET'])
-# @auth_required
-# def api_timesheet_list():
-#     timesheet_map = Timesheet.get_user_viewable(*request.args)
-#
-#     return jsonify(dict(timesheets=[
-#         x for x in timesheet_map.itervalues()
-#     ]))
+@api.route("/timesheets", methods=['GET'])
+@auth_required
+def api_timesheet_list():
+    timesheet_map = Timesheet.get_user_viewable(*request.args)
+
+    return jsonify(dict(timesheets=[
+        x for x in timesheet_map.itervalues()
+    ]))
 
 
 @api.route("/timesheets", methods=['POST'])
@@ -101,7 +101,7 @@ class Timesheet:
         self.T = timesheet
 
     @staticmethod
-    def get_user_viewable(jobid=None, orgid=None, userid=None, status=None):
+    def get_user_viewable(jobId=None, organizationId=None, userId=None, status=None):
         mine = db['timesheets'].find({"userid": session['userid']})
         mine = mine if mine else []
         owned = Timesheet.__get_owned_timesheets()
@@ -112,8 +112,8 @@ class Timesheet:
         for timesheet in chain.from_iterable([mine, owned]):
             t = timesheet.to_json()
             if all([
-                not jobid or t['jobId'] == jobid,       # Either they didn't specify a field or it must match.
-                not userid or t['userId'] == userid,
+                not jobId or t['jobId'] == jobId,       # Either they didn't specify a field or it must match.
+                not userId or t['userId'] == userId,
                 not status or t['status'] == status
             ]):
                 timesheet_map[t['id']] = t

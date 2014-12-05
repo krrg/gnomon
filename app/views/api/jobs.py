@@ -11,7 +11,114 @@ from bson import ObjectId
 @api.route("/jobs", methods=['GET'])
 @auth_required
 def api_jobs_list():
-    pass
+    orgid = request.args['organizationId'] if 'organizationId' in request.args else None
+    name = request.args['name'] if 'name' in request.args else None
+
+    return jsonify({
+        "jobs": Job.get_jobs_with_permissions(orgid=orgid, name=name)
+    })
+
+
+@api.route("/jobs/<jobid>", methods=['GET'])
+@auth_required
+def api_jobs_get(jobid):
+    userid = session['userid']
+
+    job = db['jobs'].find_one({"_id": ObjectId(jobid)})
+
+    if Job.is_user_worker(userid, jobid) or Job.is_user_owner(userid, jobid):
+        return jsonify({
+            "job": {
+                "id": jobid,
+                "name": job['name'],
+                "organizationId": job['orgid'],
+                "description": job['description'] if 'description' in job else "",
+            }
+        })
+    else:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Not authorized to access this job."
+            }
+        }), 401)
+
+
+@api.route("/jobs", methods=['POST'])
+@auth_required
+@expect_json_body
+def api_jobs_create(body):
+    try:
+        name = body['job']['name']
+        orgid = body['job']['organizationId']
+        description = body['job']['description']
+
+        # Check ownership of organization.
+        if not db['organizations'].find_one({"_id": ObjectId(orgid), "ownerid": session['userid']}):
+            return make_response(jsonify({
+                "error": {
+                    "msg": "You don't own that organization; you can't add jobs to it!"
+                }
+            }), 401)
+
+        jid = db['jobs'].insert({
+            "name": name,
+            "orgid": orgid,
+            "description": description
+        })
+
+        return jsonify({
+            "job": {
+                "id": str(jid)
+            }
+        })
+
+    except KeyError as e:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Missing required field {}".format(str(e))
+            }
+        }), 400)
+
+
+@api.route("/jobs/<jid>", methods=['PUT'])
+@auth_required
+@expect_json_body
+def api_jobs_update(body, jid):
+    userid = session['userid']
+    if not Job.is_user_owner(userid, jid):
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error: You don't own this job, thus you can't edit it."
+            }
+        }))
+
+    job = db['jobs'].find_one({"_id": ObjectId(jid)})
+    if not job:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error, the specified job '{}' does not exist!".format(jid)
+            }
+        }))
+
+    job['name'] = body['name'] if 'name' in body else job['name']
+    job['description'] = body['description'] if 'description' in body else job['description']
+
+    db['jobs'].save(job)
+
+    return jsonify({
+        "job": {
+            "id": jid
+        }
+    })
+
+
+@api.route("/jobs/<jid>", methods=['DELETE'])
+def api_jobs_delete():
+    return make_response(jsonify({
+        "error": {
+            "msg": "Not yet implemented."
+        }
+    }))
 
 
 class Job:
@@ -33,29 +140,37 @@ class Job:
 
         return org['ownerid'] == userid
 
+    @staticmethod
+    def is_user_worker(userid, jobid):
+        return db['timesheets'].find_one({"userid": userid, "jobid": jobid}) is not None
 
     @staticmethod
     def get_jobs_user_in(userid):
-        # Get the timesheets owned by the user, strip the jobids.
-        timesheets_user_in = db['timesheets'].find({"userid": userid}, {"_id": 1})
-        return set(timesheets_user_in) if timesheets_user_in else set()
+        jobs_user_in = db['timesheets'].find({"userid": userid}, {"jobid": 1})
+        return jobs_user_in if jobs_user_in else []
 
     @staticmethod
-    def get_timesheets_user_owns(userid):
+    def get_jobs_user_owns(userid):
         orgs_user_owned = db['organizations'].find({"ownerid": userid}, {"_id": 1})
         if not orgs_user_owned:
-            return set()
-
-        timesheets_in_org = db['timesheets'].find({"orgid"})
-
+            return []
+        jobs = db['jobs'].find({"orgid": {"$in": orgs_user_owned}}, {"_id": 1})
+        return jobs if jobs else []
 
     @staticmethod
     def get_jobs_with_permissions(orgid=None, name=None):
-        pass
+        jobids = set()
+        jobids.union(Job.get_jobs_user_in(session['userid']))
+        jobids.union(Job.get_jobs_user_owns(session['userid']))
 
+        query = {"_id": {"$in": list(jobids)}}
+        if orgid:
+            query['orgid'] = orgid
+        if name:
+            query['name'] = name
 
-
-
+        jobs = db['jobs'].find(query)
+        return jobs if jobs else []
 
     # The commented code below is now invalid.
     # @staticmethod

@@ -102,18 +102,23 @@ def api_organization_update(orgid, body):
 @api.route("/organization/<orgid>", methods=['DELETE'])
 @auth_required
 def api_organization_delete(orgid):
-    org = db['organizations'].find_one({"_id": ObjectId(orgid), "ownerid": session['userid']})
-    if org is None:
-        return make_response(jsonify({
-            "error": {
-                "msg": "Could not find organization '{}' (are you the owner?)".format(orgid)
-            }
-        }))
-    else:
-        db['organizations'].remove({"_id": ObjectId(orgid)})
-        return make_response(jsonify({
-            "success": {
-                "msg": "Group successfully removed.",
-                "id": orgid
-            }
-        }))
+    return make_response(jsonify({
+        "error": {
+            "msg": "Not yet implemented."
+        }
+    }), 501)
+    # org = db['organizations'].find_one({"_id": ObjectId(orgid), "ownerid": session['userid']})
+    # if org is None:
+    #     return make_response(jsonify({
+    #         "error": {
+    #             "msg": "Could not find organization '{}' (are you the owner?)".format(orgid)
+    #         }
+    #     }))
+    # else:
+    #     db['organizations'].remove({"_id": ObjectId(orgid)})
+    #     return make_response(jsonify({
+    #         "success": {
+    #             "msg": "Group successfully removed.",
+    #             "id": orgid
+    #         }
+    #     }))
