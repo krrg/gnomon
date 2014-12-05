@@ -33,3 +33,4 @@ def expect_json_body(f):
 import auth
 import users
 import organizations
+import jobs
