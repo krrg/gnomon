@@ -1,139 +1,11 @@
 {% extends "/base.html" %}
 
 {%block imports %}
-<script>
 
-  $(document).ready(function() {
-    var selectedJob = null;
-    var selectedOrg = null;
-
-
-    createUserList();
-    getOrganizations().done(function(data){
-      console.log(data);
-      var organizations = data['organizations'];
-      for(var i=0; i<organizations.length; i++) {
-        createOrganzationItem(organizations[i]);
-      }
-    });
-    $("#search-bar").on('input', function() {
-
-      var query = $.trim($(this).val()).toLowerCase();
-      $('.person-active').each(function(){
-        var $this = $(this);
-        var username = $this.find(".person-username").first().text().toLowerCase();
-        if(username.indexOf(query) === -1) {
-          $this.fadeOut();
-        }
-        else {
-          $this.fadeIn();
-        }
-      });
-    });
-
-    $(document).on('click','#job-selector .dropdown-menu li a', function(e)
-    {
-      var newHeading = $(this).text();
-      $('#job-selector-text').html(newHeading);
-    });
-    function createOrganzationItem(organization) {
-      var dropdown = $("#organization-selector .dropdown-menu").first();
-      var id = organization['id'];
-      var organizationItem = $('<li role="presentation"><a role="menuitem" tabindex="-1" href="#">' + organization['name'] + '</a></li>');
-      dropdown.append(organizationItem);
-      organizationItem.click(function() {
-        var selectedOrg = id;
-        var newHeading = $(this).text();
-        $('#organization-selector-text').html(newHeading);
-        $('#job-selector .dropdown-menu').html('');
-        $('#job-selector-text').html("Select Job");
-        $('#job-selector-button').removeAttr("disabled");
-      });
-    }
-    function createPerson(person) {
-      var cloned = $("#person-template").clone();
-      cloned.removeAttr('id');
-      cloned.removeAttr('style');
-      cloned.addClass('person-active');
-      $("#user-list-inner").append(cloned);
-
-      cloned.find(".person-username").html("<p>"+person['username']+"</p>");
-      cloned.find("button").click(function() {
-        var modal = $('#person-modal');
-        modal.find(".modal-title").html(person['username']);
-        $('#organization-selector-text').html("Select Organization");
-        $('#job-selector-text').html("Select Job");
-        $('#job-selector-button').attr("disabled","disabled");
-        $('#add-person-button').attr("disabled","disabled");
-        modal.modal('show');
-        selectedJob = null;
-        selectedOrg = null;
-      });
-      cloned.find(".img-responsive").attr('src', 'http://www.gravatar.com/avatar/'+person['id']+'?f=y&d=identicon');
-    }
-    function createUserList() {
-      $.ajax({
-        type: "GET",
-        url: "/api/v1/users",
-        dataType: "json",
-        success: function(result) {
-          var users = result['users'];
-          for(var i=0; i<users.length; i++) {
-            createPerson(users[i]);
-          }
-        },
-        error: function(xhr,status,error) {
-          console.log(xhr);
-        }
-      });
-    }
-  });
-
-
-  function getOrganizations() {
-    return $.ajax({
-      type: "GET",
-      url: "/api/v1/organizations",
-      dataType: "json"
-    });
-  }
-
-</script>
-<style>
-.outer-person {
-  padding-top: 5px;
-}
-.inner-person {
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 5px;
-  padding: 5px;
-}
-.search-bar-row {
-  padding-top:10px;
-}
-.person-identicon-wrapper {
-
-}
-.person-identicon {
-
-}
-.person-info-wrapper > p {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-wrap: break-word;
-}
-.person-name {
-  margin: 0px;
-}
-.person-username {
-  margin: 0px;
-}
-.dropdown {
-  margin-top: 10px;
-}
-</style>
+  {% assets "css_searchUsers" %}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {% endassets %}
+  <script src="/static/js/searchUsers.js"></script>
 
 {% endblock %}
 
@@ -142,16 +14,11 @@
   <div class="row">
     <div id="user-list-inner" class="col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
       <div class="row search-bar-row">
-        <form class="form-horizontal" role="form">
-          <div class="form-group">
-            <div class="col-sm-12">
-              <input type="text" class="form-control" id="search-bar" placeholder="Search">
-            </div>
+        <div class="form-group">
+          <div class="col-sm-12">
+            <input type="text" class="form-control" id="search-bar" placeholder="Search">
           </div>
-        </form>
-      <div>
-
-      </div>
+        </div>
     </div>
   </div>
 </div>
@@ -190,9 +57,6 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
-                <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="#">One Job</a></li>
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another Job</a></li>
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Yet another job</a></li> -->
               </ul>
             </div>
           </div>
@@ -205,9 +69,6 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">One Job</a></li>
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another Job</a></li>
-                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Yet another job</a></li>
               </ul>
             </div>
           </div>

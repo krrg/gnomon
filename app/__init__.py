@@ -51,6 +51,15 @@ env.register(
     )
 )
 
+env.register(
+    'css_searchUsers',
+    assets.Bundle(
+        'searchUsers.scss',
+        filters='scss',
+        output='_gen/css_searchUsers.css'
+    )
+)
+
 #####################################################################
 #  Blueprints
 #####################################################################

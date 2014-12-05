@@ -1,0 +1,33 @@
+.outer-person {
+  padding-top: 5px;
+}
+.inner-person {
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  padding: 5px;
+}
+.search-bar-row {
+  padding-top:10px;
+}
+.person-identicon-wrapper {
+
+}
+.person-identicon {
+
+}
+.person-info-wrapper > p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+.person-name {
+  margin: 0px;
+}
+.person-username {
+  margin: 0px;
+}
+.dropdown {
+  margin-top: 10px;
+}
