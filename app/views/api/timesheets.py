@@ -1,4 +1,6 @@
+from itertools import chain
 from app.views.api import api
+from apiwrappers import expect_json_body
 from flask import request, session, jsonify, abort, make_response
 from app.__init__ import db
 from auth import auth_required
@@ -6,13 +8,8 @@ from auth import auth_required
 # Mongo id lookups
 from bson import ObjectId
 
-# Password hashing and salting
-from os import urandom
-import hashlib
-import base64
-
-# Time stamps
-from datetime import datetime
+# Job helper class
+#
 
 
 @api.route("/timesheets/<sheetid>", methods=['GET'])
@@ -35,13 +32,67 @@ def api_timesheet_get(sheetid):
             "error": {
                 "msg": "You do not have permission to view this timesheet."
             }
-        }))
+        }), 401)
 
 
-@api.route("/timesheets", methods=['GET'])
+# @api.route("/timesheets", methods=['GET'])
+# @auth_required
+# def api_timesheet_list():
+#     timesheet_map = Timesheet.get_user_viewable(*request.args)
+#
+#     return jsonify(dict(timesheets=[
+#         x for x in timesheet_map.itervalues()
+#     ]))
+
+
+@api.route("/timesheets", methods=['POST'])
+@expect_json_body
 @auth_required
-def api_timesheet_list():
-    abort(501)
+def api_timesheet_create(body):
+
+    from views.api.jobs import Job
+
+    try:
+        hired_user_id = body['timesheet']['userId']
+        jobid = body['timesheet']['jobId']
+
+        # Ensure that this user actually owns this job.
+        if not Job.is_user_owner(session['userid'], jobid):
+            return make_response(jsonify({
+                "error": {
+                    "msg": "You don't have permissions to create a timesheet for this job!"
+                }
+            }), 401)
+
+        db['timesheet'].insert({
+            "userid": hired_user_id,
+            "jobid": jobid
+        })
+
+    except KeyError:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Your request was valid json, but it was missing required parameters."
+            }
+        }), 400)
+
+
+@api.route("/timesheets/<id>", methods=['PUT'])
+def api_timesheets_update(id):
+    make_response(jsonify({
+        "error": {
+            "msg": "Sorry, this hasn't been implemented yet."
+        }
+    }), 501)
+
+
+@api.route("/timesheets/<id>", methods=['DELETE'])
+def api_timesheets_delete(id):
+    make_response(jsonify({
+        "error": {
+            "msg": "Sorry, this hasn't been implemented yet."
+        }
+    }), 501)
 
 
 class Timesheet:
@@ -50,18 +101,33 @@ class Timesheet:
         self.T = timesheet
 
     @staticmethod
-    def get_user_viewable():
+    def get_user_viewable(jobid=None, orgid=None, userid=None, status=None):
         mine = db['timesheets'].find({"userid": session['userid']})
         mine = mine if mine else []
-
         owned = Timesheet.__get_owned_timesheets()
 
-        # Need to index by ObjectID
+        timesheet_map = {}
+
+        # This part is pretty hacked---convert this to part of the mongo query or just use SQL in future renditions.
+        for timesheet in chain.from_iterable([mine, owned]):
+            t = timesheet.to_json()
+            if all([
+                not jobid or t['jobId'] == jobid,       # Either they didn't specify a field or it must match.
+                not userid or t['userId'] == userid,
+                not status or t['status'] == status
+            ]):
+                timesheet_map[t['id']] = t
+
+        return timesheet_map
 
     @staticmethod
-    def __get_owned_timesheets():
+    def __get_owned_timesheets(orgid=None):
         owned = []
-        organizations = db['organizations'].find({"ownerid": session['userid']})
+        if not orgid:
+            organizations = db['organizations'].find({"ownerid": session['userid']})
+        else:
+            organizations = db['organizations'].find({"ownerid": session['userid'], "orgid": orgid})
+
         if organizations:
             for org in organizations:
                 jobs = db['jobs'].find({"orgid": org['_id']})
@@ -90,6 +156,7 @@ class Timesheet:
     def to_json(self):
         return jsonify({
             "timesheet": {
+                "id": str(self.T['_id']),
                 "userId": self.T.userid,
                 "jobId": self.T.jobid,
                 "clockedIn": self.T.clockedIn if self.T.clockedIn else [],
