@@ -2,6 +2,7 @@ from apiwrappers import expect_json_body
 from app.views.api import api
 from flask import request, session, jsonify, abort, make_response
 from auth import auth_required
+from app.__init__ import db
 
 # Mongo id lookups
 from bson import ObjectId
@@ -10,7 +11,7 @@ from bson import ObjectId
 @api.route("/jobs", methods=['GET'])
 @auth_required
 def api_jobs_list():
-    abort(501)
+    pass
 
 
 class Job:
@@ -31,6 +32,29 @@ class Job:
             return False
 
         return org['ownerid'] == userid
+
+
+    @staticmethod
+    def get_jobs_user_in(userid):
+        # Get the timesheets owned by the user, strip the jobids.
+        timesheets_user_in = db['timesheets'].find({"userid": userid}, {"_id": 1})
+        return set(timesheets_user_in) if timesheets_user_in else set()
+
+    @staticmethod
+    def get_timesheets_user_owns(userid):
+        orgs_user_owned = db['organizations'].find({"ownerid": userid}, {"_id": 1})
+        if not orgs_user_owned:
+            return set()
+
+        timesheets_in_org = db['timesheets'].find({"orgid"})
+
+
+    @staticmethod
+    def get_jobs_with_permissions(orgid=None, name=None):
+        pass
+
+
+
 
 
     # The commented code below is now invalid.
