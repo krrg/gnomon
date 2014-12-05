@@ -24,3 +24,7 @@ def manageOrganizations():
 @app.route('/login')
 def login():
     return render_template("root/login.html")
+
+@app.route('/searchUsers')
+def searchUsers():
+    return render_template("root/searchUsers.html")

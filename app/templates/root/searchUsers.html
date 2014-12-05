@@ -1,0 +1,190 @@
+{% extends "/base.html" %}
+
+{%block imports %}
+<script>
+
+  $(document).ready(function() {
+    createUserList();
+    $("#search-bar").on('input', function() {
+
+      var query = $.trim($(this).val()).toLowerCase();
+      $('.person-active').each(function(){
+        var $this = $(this);
+        var username = $this.find(".person-username").first().text().toLowerCase();
+        if(username.indexOf(query) === -1) {
+          $this.fadeOut();
+        }
+        else {
+          $this.fadeIn();
+        }
+      });
+    });
+
+    $('#organization-selector .dropdown-menu li a').click(function(e)
+    {
+      var newHeading = $(this).text();
+      $('#organization-selector-text').html(newHeading);
+    });
+    $('#job-selector .dropdown-menu li a').click(function(e)
+    {
+      var newHeading = $(this).text();
+      $('#job-selector-text').html(newHeading);
+    });
+  });
+  function createPerson(person) {
+    var cloned = $("#person-template").clone();
+    cloned.removeAttr('id');
+    cloned.removeAttr('style');
+    cloned.addClass('person-active');
+    $("#user-list-inner").append(cloned);
+
+    cloned.find(".person-username").html("<p>"+person['username']+"</p>");
+    cloned.find("button").click(function() {
+      var modal = $('#person-modal');
+      modal.find(".modal-title").html(person['username']);
+      modal.modal('show')
+
+    });
+    cloned.find(".img-responsive").attr('src', 'http://www.gravatar.com/avatar/'+person['id']+'?f=y&d=identicon');
+  }
+  function createUserList() {
+    $.ajax({
+      type: "GET",
+      url: "/api/v1/users",
+      dataType: "json",
+      success: function(result) {
+        var users = result['users'];
+
+        for(var i=0; i<users.length; i++) {
+          createPerson(users[i]);
+        }
+      },
+      error: function(xhr,status,error) {
+        console.log(xhr);
+      }
+    });
+  }
+
+</script>
+<style>
+.outer-person {
+  padding-top: 5px;
+}
+.inner-person {
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  padding: 5px;
+}
+.search-bar-row {
+  padding-top:10px;
+}
+.person-identicon-wrapper {
+
+}
+.person-identicon {
+
+}
+.person-info-wrapper > p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+.person-name {
+  margin: 0px;
+}
+.person-username {
+  margin: 0px;
+}
+.dropdown {
+  margin-top: 10px;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div id="user-list-outer" class="container-fluid">
+  <div class="row">
+    <div id="user-list-inner" class="col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2">
+      <div class="row search-bar-row">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <div class="col-sm-12">
+              <input type="text" class="form-control" id="search-bar" placeholder="Search">
+            </div>
+          </div>
+        </form>
+      <div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div id="person-template" class="col-sm-4 col-lg-3" style="display: none">
+  <div class="outer-person">
+    <div class="inner-person">
+      <div class="row">
+        <div class="col-xs-4">
+          <img class="img-responsive" src=http://www.gravatar.com/avatar/205e460b479e2e5b48a07710c08d51?f=y&d=identicon></img>
+        </div>
+        <div class="col-xs-8 person-info-wrapper" style="word-wrap: break-word;">
+          <!-- <p class="person-name">Curtis Wigington</p> -->
+          <p class="person-username">cwigs</p>
+          <button type="button" class="btn btn-default btn-xs btn-block">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="person-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="person-model-title">Modal title</h4>
+      </div>
+      <div class="modal-body container-fluid">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="dropdown" id="organization-selector">
+              <button class="btn btn-default btn-block dropdown-toggle" type="button" id="organization-selector-button" data-toggle="dropdown" aria-expanded="true">
+                <span id="organization-selector-text">
+                  Select Organization
+                </span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">One Job</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another Job</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Yet another job</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="dropdown" id="job-selector">
+              <button class="btn btn-default btn-block dropdown-toggle" type="button" id="job-selector-button" data-toggle="dropdown" aria-expanded="true">
+                <span id="job-selector-text">
+                  Select Job
+                </span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="organization-selector-button">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">One Job</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another Job</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Yet another job</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
