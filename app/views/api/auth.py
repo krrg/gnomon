@@ -6,11 +6,7 @@ from functools import wraps
 
 @api.route('/auth', methods=['POST'])
 def api_auth_login():
-    print "SLKDJGLSKDJGLSKDJGLKSDJG"
     body = request.get_json(force=True)
-
-    print body
-
     try:
         if attempt_auth_login(body['username'], body['password']):
             return jsonify({
@@ -22,8 +18,7 @@ def api_auth_login():
                     "msg": "Invalid username or password."
                 }
             }), 401)
-    except KeyError as e:
-        print e
+    except KeyError:
         return make_response(jsonify({
             "error": {
                 "msg": "Malformed request--missing username or password field."
