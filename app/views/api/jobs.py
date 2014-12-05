@@ -147,15 +147,19 @@ class Job:
     @staticmethod
     def get_jobs_user_in(userid):
         jobs_user_in = db['timesheets'].find({"userid": userid}, {"jobid": 1})
-        return jobs_user_in if jobs_user_in else []
+        return list(jobs_user_in) if jobs_user_in else []
 
     @staticmethod
     def get_jobs_user_owns(userid):
         orgs_user_owned = db['organizations'].find({"ownerid": userid}, {"_id": 1})
         if not orgs_user_owned:
             return []
-        jobs = db['jobs'].find({"orgid": {"$in": orgs_user_owned}}, {"_id": 1})
-        return jobs if jobs else []
+        jobs = db['jobs'].find({"orgid": {"$in": list(orgs_user_owned)}}, {"_id": 1})
+
+        for job in jobs:
+            print job
+
+        return list(jobs)
 
     @staticmethod
     def get_jobs_with_permissions(orgid=None, name=None):
@@ -170,7 +174,11 @@ class Job:
             query['name'] = name
 
         jobs = db['jobs'].find(query)
-        return jobs if jobs else []
+
+        for job in jobs:
+            print job
+
+        return list(jobs)
 
     # The commented code below is now invalid.
     # @staticmethod
