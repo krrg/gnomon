@@ -28,7 +28,7 @@ def api_auth_login():
 
 @api.route('/auth', methods=['DELETE'])
 def api_auth_logout():
-    session.clear()  # I have my dubious doubts about whether this is actually working.
+    session.clear()
     return jsonify({
         "success": True,
         "msg": "Logged out."

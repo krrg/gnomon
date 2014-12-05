@@ -1,14 +1,15 @@
-from app.views.api import api, expect_json_body
+from app.views.api import api
+from apiwrappers import expect_json_body
 from flask import request, session, jsonify, abort, make_response
 from app.__init__ import db
-from auth import auth_required
+# from auth import auth_required
 
 # Mongo id lookups
 from bson import ObjectId
 
 
 @api.route("/organizations", methods=['GET'])
-@auth_required
+# @auth_required
 def api_organizations_list():
     userid = session['userid']
     my_orgs = db['organizations'].find({"ownerid": ObjectId(userid)})
@@ -47,7 +48,7 @@ def api_organization_get(orgid):
 
 
 @api.route("/organizations", methods=['POST'])
-@auth_required
+# @auth_required
 @expect_json_body
 def api_organization_create(body):
     try:
@@ -70,7 +71,7 @@ def api_organization_create(body):
 
 
 @api.route("/organizations/<orgid>", methods=['PUT'])
-@auth_required
+# @auth_required
 @expect_json_body
 def api_organization_update(orgid, body):
     try:
@@ -99,7 +100,7 @@ def api_organization_update(orgid, body):
 
 
 @api.route("/organization/<orgid>", methods=['DELETE'])
-@auth_required
+# @auth_required
 def api_organization_delete(orgid):
     org = db['organizations'].find_one({"_id": ObjectId(orgid), "ownerid": session['userid']})
     if org is None:
