@@ -29,7 +29,7 @@ def api_timesheet_get(sheetid):
     timesheet = Timesheet(t)
 
     if timesheet.can_user_view(session['userid']):
-        return timesheet.to_json()
+        return timesheet.to_dict()
     else:
         return make_response(jsonify({
             "error": {
@@ -105,14 +105,15 @@ def api_timesheet_create(body):
 @auth_required
 @expect_json_body
 def api_timesheets_update(body, tid):
-    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
-    if not timesheet:
+    timesheet = Timesheet.by_id(tid)
+    if not timesheet.can_user_view(session['userid']):
         return make_response(jsonify({
             "error": {
-                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
-                       "or the timesheet does not exist."
+                "msg": "Error:  Either the timesheet does not exist or you do not have permission to view it."
             }
-        }), 400)
+        }))
+
+    timesheet = timesheet.T
 
     if 'status' not in body or body['status'] != "active":
         return make_response(jsonify({
@@ -134,14 +135,15 @@ def api_timesheets_update(body, tid):
 @auth_required
 @expect_json_body
 def api_clock_append(body, tid):
-    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
-    if not timesheet:
+    timesheet = Timesheet.by_id(tid)
+    if not timesheet.can_user_view(session['userid']):
         return make_response(jsonify({
             "error": {
-                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
-                       "or the timesheet does not exist."
+                "msg": "Error:  Either the timesheet does not exist or you do not have permission to view it."
             }
-        }), 400)
+        }))
+
+    timesheet = timesheet.T
 
     try:
 
@@ -177,14 +179,24 @@ def api_clock_append(body, tid):
 @auth_required
 @expect_json_body
 def api_timesheet_update(body, tid):
-    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
-    if not timesheet:
+    # timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
+    # if not timesheet:
+    #     return make_response(jsonify({
+    #         "error": {
+    #             "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
+    #                    "or the timesheet does not exist."
+    #         }
+    #     }), 400)
+
+    timesheet = Timesheet.by_id(tid)
+    if not timesheet.can_user_view(session['userid']):
         return make_response(jsonify({
             "error": {
-                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
-                       "or the timesheet does not exist."
+                "msg": "Error:  Either the timesheet does not exist or you do not have permission to view it."
             }
-        }), 400)
+        }))
+
+    timesheet = timesheet.T
 
     try:
         def save_timesheet():
@@ -233,8 +245,8 @@ def api_timesheet_update(body, tid):
 @api.route("/timesheets/<tid>/clock/unix", methods=['DELETE'])
 @auth_required
 def api_clock_delete(tid):
-    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
-    if not timesheet:
+    t = Timesheet.by_id(tid)
+    if not t.can_user_view(session['userid']):
         return make_response(jsonify({
             "error": {
                 "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
@@ -245,11 +257,11 @@ def api_clock_delete(tid):
     if 'clock' not in request.args:
         try:
             unixstamp = int(request.args)
-            clock = Clock(timesheet)
+            clock = Clock(t.T)
             if clock.delete_stamp(unixstamp):
-                timesheet['clockIn'] = clock.cin
-                timesheet['clockOut'] = clock.cout
-                db['timesheets'].save(timesheet)
+                t.T['clockIn'] = clock.cin
+                t.T['clockOut'] = clock.cout
+                db['timesheets'].save(t.T)
 
                 return jsonify({
                     "timesheet": {"id": tid}
@@ -330,6 +342,10 @@ class Timesheet:
         self.T = timesheet
 
     @staticmethod
+    def by_id(tid):
+        return Timesheet(db['timesheets'].find_one({"_id": ObjectId(tid)}))
+
+    @staticmethod
     def get_user_viewable(jobId=None, organizationId=None, userId=None, status=None):
         mine = db['timesheets'].find({"userid": session['userid']})
         mine = map(Timesheet, mine) if mine else []
@@ -369,6 +385,9 @@ class Timesheet:
 
 
     def can_user_view(self, userid):
+        if not self.T:
+            return False
+
         if self.T.userid == userid:
             return True  # The user is the worker
 
