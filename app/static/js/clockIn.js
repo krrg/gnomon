@@ -1,13 +1,16 @@
 $(document).ready(function() {
 
   //createTimesheets([TimeTools.testTimesheet,TimeTools.testTimesheet,TimeTools.testTimesheet])
-  Database.listTimesheetsByUserId(GnomonSession.userid).done(function(result) {
-    var timesheets = result['timesheets'];
-    createTimesheets(timesheets);
-  });
+  // Database.listTimesheetsByUserId(GnomonSession.userid).done(function(result) {
+  //   var timesheets = result['timesheets'];
+  //   createTimesheets(timesheets);
+  // });
 
 
   function createTimesheets(timesheets) {
+    if(timesheets.length === 0) {
+
+    }
     var rowDiv = null;
     for(var i=0; i<timesheets.length; i++){
       if(i%2 === 0) {
@@ -42,10 +45,8 @@ $(document).ready(function() {
       clonedBtn.addClass("btn-danger");
       clonedBtn.html("Clock Out");
       clonedBtn.click(function() {
-        var currentTime = new Date().getTime();
-        var data = {"clockOut":currentTime};
-        Database.createClock(data, timesheet['id']).done(function(){
-          alert("clock out success");
+        Database.clockOut(timesheet['id']).done(function(){
+          reloadDom();
         })
       });
     }
@@ -53,10 +54,8 @@ $(document).ready(function() {
       clonedBtn.addClass("btn-success");
       clonedBtn.html("Clock In");
       clonedBtn.click(function(){
-        var currentTime = new Date().getTime();
-        var data = {"clockIn":currentTime};
-        Database.createClock(data, timesheet['id']).done(function(){
-          alert("clock in success");
+        Database.clockIn(timesheet['id']).done(function(){
+          reloadDom();
         })
       });
     }
@@ -88,4 +87,19 @@ $(document).ready(function() {
 
     return rowDiv;
   }
+  function reloadDom() {
+
+    Database.listTimesheetsByUserId(GnomonSession.userid).done(function(result) {
+      var timesheets = result['timesheets'];
+      if(timesheets.length > 0) {
+        createTimesheets(timesheets);
+        $('#clock-in-list').empty();
+      }
+      else {
+        $('#clock-in-list').append($("<h4 class='text-center'>Sorry, You Don't Have Any Jobs</h4>"));
+      }
+
+    });
+  }
+  reloadDom();
 });
