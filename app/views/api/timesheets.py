@@ -300,6 +300,9 @@ class Clock:
         self.cout = sortedlist(timesheet['clockOut'] if 'clockOut' in timesheet else [])
 
     def append(self, i, o):
+        if i in self.cin or o in self.cout:
+            return False
+
         self.cin.add(i)
         self.cout.add(o)
 
@@ -333,7 +336,7 @@ class Clock:
             return False
 
         for clock_out, clock_in in zip(self.cout, self.cin[1:]):
-            if clock_in < clock_out:
+            if clock_in <= clock_out:
                 return False
 
         return True
