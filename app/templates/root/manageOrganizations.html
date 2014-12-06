@@ -81,10 +81,8 @@ $(document).ready(function() {
       cloned.remove();
       user['id'] = null;
     });
-    cloned.find(".timesheet-user-btn").click(function(){
-      console.log("timesheet for user: "+user['id']);
+    cloned.find(".timesheet-user-btn").attr("href", "/timesheet/"+user['id']);
 
-    });
     rootElement.append(cloned);
   }
   function createJob(job, rootElement) {
@@ -310,9 +308,9 @@ $(document).ready(function() {
   <button type="button" class="btn btn-default delete-user-btn">
     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
   </button>
-  <button type="button" class="btn btn-default timesheet-user-btn">
+  <a type="button" class="btn btn-default timesheet-user-btn" href="">
     <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-  </button>
+  </a>
   <span class="user-username">username2</span>
 </div>
 {% endblock %}

@@ -41,10 +41,24 @@ $(document).ready(function() {
     if(timesheet['clockIn'].length > timesheet['clockOut'].length) {
       clonedBtn.addClass("btn-danger");
       clonedBtn.html("Clock Out");
+      clonedBtn.click(function() {
+        var currentTime = new Date().getTime();
+        var data = {"clockOut":currentTime};
+        Database.createClock(data, timesheet['id']).done(function(){
+          alert("clock out success");
+        })
+      });
     }
     else {
       clonedBtn.addClass("btn-success");
       clonedBtn.html("Clock In");
+      clonedBtn.click(function(){
+        var currentTime = new Date().getTime();
+        var data = {"clockIn":currentTime};
+        Database.createClock(data, timesheet['id']).done(function(){
+          alert("clock in success");
+        })
+      });
     }
 
     cloned.find(".clock-in-btn").click(function(){
