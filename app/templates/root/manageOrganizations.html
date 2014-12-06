@@ -73,13 +73,21 @@ $(document).ready(function() {
     cloned.removeAttr('id');
     cloned.removeAttr('style');
     console.log(job['name']);
+    cloned.find(".job-user-btn").off('click');
+    cloned.find(".job-edit-btn").off('click');
+    cloned.find(".job-user-btn").click(function() {
+      Database.listUsersByJob(job['id']).done(function(result) {
+        console.log(result);
+      });
+    });
+
     cloned.find(".job-title").html(job['name']);
     cloned.find(".job-edit-btn").click(function() {
       var modal = $('#job-edit');
       modal.find('.modal-title').html(job['name']);
       modal.find(".job-modal-name").first().val(job['name']);
       modal.find(".job-modal-description").first().val(job['description']);
-
+      modal.find(".save-changes").off('click');
       modal.find(".save-changes").click(function() {
 
         var name = modal.find(".job-modal-name").first().val();
@@ -103,6 +111,14 @@ $(document).ready(function() {
 
     rootElement.find(".org-jobs-list").append(cloned);
   }
+  $('#new-org-header .new-org-create').click(function() {
+    var name = $('#new-org-header .new-org-text').val();
+    var organization = {'name':name};
+    Database.createOrganization(organization).then(function(result) {
+      organization['id'] =  result['organization']['id'];
+      createOrganization(organization);
+    })
+  });
 });
 </script>
 
@@ -112,6 +128,15 @@ $(document).ready(function() {
 <divclass="container-fluid">
   <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
+      <div class="row" id="new-org-header">
+        <label class="col-sm-3 control-label">New Organization Name</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control new-org-text" placeholder="New Organization Name">
+        </div>
+        <div class="col-sm-2">
+          <button type="button" class="btn btn-primary btn-block new-org-create">Create New</button>
+        </div>
+      </div>
       <div class="row"  id="organization-list" >
 
       </div>
@@ -174,7 +199,7 @@ $(document).ready(function() {
       <button type="button" class="btn btn-primary job-edit-btn">
         <span class="glyphicon glyphicon-edit " aria-hidden="true"></span>
       </button>
-      <button type="button" class="btn btn-primary">
+      <button type="button" class="btn btn-primary job-user-btn">
         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
       </button>
     </div>

@@ -8,10 +8,27 @@ Database.listOrganizations = function() {
     dataType: "json"
   });
 }
+Database.createOrganization = function(data) {
+  var jsondata = JSON.stringify({"organization":data});
+  return $.ajax({
+    type: "POST",
+    url: "/api/v1/organizations",
+    dataType: "json",
+    data:jsondata,
+    contentType:"application/json"
+  });
+}
 Database.listUsers = function() {
   return $.ajax({
     type: "GET",
     url: "/api/v1/users",
+    dataType: "json"
+  });
+}
+Database.listUsersByJob = function(jobId) {
+  return $.ajax({
+    type: "GET",
+    url: "/api/v1/users?jobId="+jobId,
     dataType: "json"
   });
 }
@@ -43,6 +60,17 @@ Database.updateJob = function(id,data) {
   return $.ajax({
     type: "PUT",
     url: "/api/v1/jobs/"+id,
+    dataType: "json",
+    data:jsondata,
+    contentType:"application/json"
+  });
+}
+Database.createTimesheet = function(data) {
+  var jsondata = JSON.stringify({"timesheet":data});
+  console.log(jsondata);
+  return $.ajax({
+    type: "POST",
+    url: "/api/v1/timesheets",
     dataType: "json",
     data:jsondata,
     contentType:"application/json"
