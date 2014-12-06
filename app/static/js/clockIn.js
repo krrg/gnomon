@@ -19,7 +19,7 @@ $(document).ready(function() {
 
   function createNewClock(timesheet) {
 
-    var weeks = TimeTools.getWeeks(timesheet['clockedIn'], timesheet['clockedOut']);
+    var weeks = TimeTools.getWeeks(timesheet['clockIn'], timesheet['clockOut']);
     var weekTime = 0;
     var dayTime = 0;
     if(weeks.length > 0) {
@@ -36,6 +36,16 @@ $(document).ready(function() {
     var cloned = $("#clock-in-template").clone();
     cloned.removeAttr('id');
     cloned.removeAttr('style');
+
+    var clonedBtn = cloned.find(".clock-in-btn").first();
+    if(timesheet['clockIn'].length > timesheet['clockOut'].length) {
+      clonedBtn.addClass("btn-danger");
+      clonedBtn.html("Clock Out");
+    }
+    else {
+      clonedBtn.addClass("btn-success");
+      clonedBtn.html("Clock In");
+    }
 
     cloned.find(".clock-in-btn").click(function(){
       console.log('here');
