@@ -11,3 +11,4 @@ def login_page_first(f):
             return f(*args, **kwargs)
     return decorated_function
 
+

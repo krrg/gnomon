@@ -326,7 +326,7 @@ class Timesheet:
     @staticmethod
     def get_user_viewable(jobId=None, organizationId=None, userId=None, status=None):
         mine = db['timesheets'].find({"userid": session['userid']})
-        mine = mine if mine else []
+        mine = map(Timesheet, mine) if mine else []
         owned = Timesheet.__get_owned_timesheets(orgid=organizationId)
 
         timesheet_map = {}
@@ -335,9 +335,9 @@ class Timesheet:
         for timesheet in chain.from_iterable([mine, owned]):
             t = timesheet.to_dict()
             if all([
-                        not jobId or t['jobId'] == jobId,  # Either they didn't specify a field or it must match.
-                        not userId or t['userId'] == userId,
-                        not status or t['status'] == status
+                not jobId or t['jobId'] == jobId,  # Either they didn't specify a field or it must match.
+                not userId or t['userId'] == userId,
+                not status or t['status'] == status
             ]):
                 timesheet_map[t['id']] = t
 
