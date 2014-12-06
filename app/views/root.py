@@ -1,7 +1,5 @@
 
 from app import app
-from app.__init__ import db
-from bson import ObjectId
 from flask import render_template, session, redirect
 from app.views.wrappers import login_page_first
 

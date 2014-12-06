@@ -29,7 +29,9 @@ def api_timesheet_get(sheetid):
     timesheet = Timesheet(t)
 
     if timesheet.can_user_view(session['userid']):
-        return timesheet.to_dict()
+        return jsonify({
+            "timesheet": timesheet.to_dict()
+        })
     else:
         return make_response(jsonify({
             "error": {
@@ -388,7 +390,7 @@ class Timesheet:
         if not self.T:
             return False
 
-        if self.T.userid == userid:
+        if self.T['userid'] == userid:
             return True  # The user is the worker
 
         owned_organizations = set([str(org['_id']) for org in db['organizations'].find({"ownerid": userid})])
