@@ -41,7 +41,13 @@ def api_timesheet_get(sheetid):
 @api.route("/timesheets", methods=['GET'])
 @auth_required
 def api_timesheet_list():
-    timesheet_map = Timesheet.get_user_viewable(*request.args)
+
+    userId = request.args['userId'] if 'userId' in request.args else None
+    jobId = request.args['jobId'] if 'jobId' in request.args else None
+    organizationId = request.args['organizationId'] if 'organizationId' in request.args else None
+    status = request.args['status'] if 'status' in request.args else None
+
+    timesheet_map = Timesheet.get_user_viewable(userId=userId, jobId=jobId, organizationId=organizationId, status=status)
 
     return jsonify(dict(timesheets=[
         x for x in timesheet_map.itervalues()
