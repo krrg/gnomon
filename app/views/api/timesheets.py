@@ -52,7 +52,7 @@ def api_timesheet_list():
 @auth_required
 def api_timesheet_create(body):
 
-    from views.api.jobs import Job
+    from app.views.api.jobs import Job
 
     try:
         hired_user_id = body['timesheet']['userId']
