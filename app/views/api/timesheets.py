@@ -1,4 +1,5 @@
 from itertools import chain
+import time
 
 from app.views.api import api
 from apiwrappers import expect_json_body
@@ -341,6 +342,10 @@ class Clock:
 
         return self.__validate()
 
+    def __validate_none_in_future(self):
+        current_time = time.time() * 1000
+        return all(lambda stamp: stamp > current_time, chain([self.cin, self.cout]))
+
     def __validate(self):
         if len(self.cin) != len(self.cout):
             return False
@@ -349,8 +354,7 @@ class Clock:
             if clock_in <= clock_out:
                 return False
 
-        return True
-
+        return self.__validate_none_in_future()
 
 class Timesheet:
     def __init__(self, timesheet):
