@@ -17,7 +17,6 @@ import base64
 from datetime import datetime
 
 
-
 @api.route('/users', methods=['GET'])
 def api_users_list():
     users = []
@@ -51,9 +50,11 @@ def api_users_filter_by_jobid(jobid):
             }
         }))
 
-    users_in_job = db['timesheets'].find({"jobid": jobid}, {"userid": 1})
+    users_ids_in_job = db['timesheets'].find({"jobid": jobid}, {"userid": 1, "_id": 0})
+    users = map(lambda x: ObjectId(x['userid']), list(users_ids_in_job))
+    users_in_job = list(db['users'].find({"_id": {'$in': users}}))
 
-    return [x['userid'] for x in users_in_job]
+    return list(users_in_job)
 
 
 @api.route('/users/<userid>', methods=['GET'])
