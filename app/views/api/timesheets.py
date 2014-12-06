@@ -134,6 +134,58 @@ def api_timesheets_update(body, tid):
     })
 
 
+@api.route("/timesheets/<tid>/clockin", methods=['GET'])
+@auth_required
+def api_clock_clockin(tid):
+    timesheet = Timesheet.by_id(tid)
+    if not timesheet.can_user_view(session['userid']):
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error:  Either the timesheet does not exist or you do not have permission to view it."
+            }
+        }))
+    timesheet = timesheet.T
+    clock = Clock(timesheet)
+    if not clock.clockin():
+        return make_response(jsonify({
+            "error": {
+                "msg": "The clock-in was rejected because it causes an exception in the timesheet."
+            }
+        }))
+    else:
+        db['timesheets'].save(timesheet)
+        return jsonify({
+            "success": {
+                "Okay"
+            }
+        })
+
+@api.route("/timesheets/<tid>/clockout", methods=['GET'])
+@auth_required
+def api_clock_clockin(tid):
+    timesheet = Timesheet.by_id(tid)
+    if not timesheet.can_user_view(session['userid']):
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error:  Either the timesheet does not exist or you do not have permission to view it."
+            }
+        }))
+    timesheet = timesheet.T
+    clock = Clock(timesheet)
+    if not clock.clockout():
+        return make_response(jsonify({
+            "error": {
+                "msg": "The clock-out was rejected because it causes an exception in the timesheet."
+            }
+        }))
+    else:
+        db['timesheets'].save(timesheet)
+        return jsonify({
+            "success": {
+                "Okay"
+            }
+        })
+
 @api.route("/timesheets/<tid>/clock", methods=['POST'])
 @auth_required
 @expect_json_body
@@ -300,6 +352,14 @@ class Clock:
         self.cin = sortedlist(timesheet['clockIn'] if 'clockIn' in timesheet else [])
         self.cout = sortedlist(timesheet['clockOut'] if 'clockOut' in timesheet else [])
 
+    def clockin(self):
+        self.cin.add(int(time.time() * 1000))
+        return self.__validate()
+
+    def clockout(self):
+        self.cout.add(int(time.time() * 1000))
+        return self.__validate()
+
     def append(self, i, o):
         if i in self.cin or o in self.cout:
             return False
@@ -347,7 +407,7 @@ class Clock:
         return all(map(lambda stamp: stamp <= current_time, chain(self.cin, self.cout)))
 
     def __validate(self):
-        if len(self.cin) != len(self.cout):
+        if (len(self.cin) - len(self.cout)) not in [0, 1]:  # |cout| <= |cin|, and |cin| - |cout| <= 1
             return False
 
         for clock_out, clock_in in zip(self.cout, self.cin[1:]):
