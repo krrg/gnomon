@@ -244,9 +244,9 @@ def api_timesheet_update(body, tid):
         }), 400)
 
 
-@api.route("/timesheets/<tid>/clock/unix", methods=['DELETE'])
+@api.route("/timesheets/<tid>/clock/<unixstamp>", methods=['DELETE'])
 @auth_required
-def api_clock_delete(tid):
+def api_clock_delete(tid, unixstamp):
     t = Timesheet.by_id(tid)
     if not t.can_user_view(session['userid']):
         return make_response(jsonify({
@@ -258,7 +258,7 @@ def api_clock_delete(tid):
 
     if 'clock' not in request.args:
         try:
-            unixstamp = int(request.args)
+            unixstamp = int(unixstamp)
             clock = Clock(t.T)
             if clock.delete_stamp(unixstamp):
                 t.T['clockIn'] = list(clock.cin)
