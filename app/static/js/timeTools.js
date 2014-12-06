@@ -83,7 +83,6 @@ TimeTools.getTimeTotal = function(clockInArray, clockOutArray) {
   return sumTotal
 }
 TimeTools.msToReadable = function(ms) {
-  console.log(ms);
   var seconds=(~~(ms/1000))%60
   var minutes=(~~(ms/(1000*60)))%60
   var hours=(~~(ms/(1000*60*60)))
@@ -93,4 +92,77 @@ TimeTools.msToReadable = function(ms) {
   var secondsStr = seconds >= 10 ? seconds.toString() : "0"+seconds.toString();
 
   return ""+hourStr+":"+minuteStr+":"+secondsStr;
+}
+TimeTools.getBasicTime = function(date) {
+  var hours = date.getHours();
+  var mid = "AM";
+  if(hours == 0) {
+    hours = 12;
+  }
+  else if( hours > 12) {
+    hours = hours % 12;
+    mid = "PM";
+  }
+  return hours + ":"+TimeTools.getTwoDigitStr(date.getMinutes())+":"+TimeTools.getTwoDigitStr(date.getSeconds())+" "+mid;
+}
+TimeTools.getTwoDigitStr = function(val) {
+  if(val < 10)
+    return "0" + val;
+  return val;
+}
+TimeTools.getTimeToMs = function() {
+
+}
+TimeTools.parseTextHourMinute = function(text) {
+  text = text.trim();
+
+  if(text === "") {
+    return text;
+  }
+  var hour = 0;
+  var minute = 0;
+  var morning = true;
+  if(text.toLowerCase().indexOf("pm", text.length - 2) !== -1) {
+    morning = false;
+    text = text.substring(0, text.length - 2);
+  }
+  if(text.toLowerCase().indexOf("am", text.length - 2) !== -1) {
+    text = text.substring(0, text.length - 2);
+  }
+
+  var splitText = text.trim().split(":");
+  var firstNumber = parseInt(splitText[0]);
+
+  if(isNaN(firstNumber) || firstNumber < 1 || firstNumber > 12) {
+    return null;
+  }
+  hour = firstNumber;
+  if(!morning && hour != 12) {
+    hour += 12;
+  }
+  if(morning && hour == 12) {
+    hour = 0;
+  }
+
+  if(splitText.length == 1) {
+    return {"hour":hour, "minute":minute};
+  }
+
+  var secondNumber = parseInt(splitText[1]);
+
+  if(isNaN(secondNumber) || secondNumber < 0 || secondNumber > 59) {
+    return null;
+  }
+  minute = secondNumber;
+  return {"hour":hour, "minute":minute};
+}
+TimeTools.objectToMS = function(obj) {
+  var time = 0;
+  if(obj['hour']) {
+    time += obj['hour']*3600000;
+  }
+  if(obj['minute']) {
+    time += obj['minute']*60000;
+  }
+  return time;
 }
