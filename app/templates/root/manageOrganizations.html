@@ -11,11 +11,23 @@ $(document).ready(function() {
   Database.listOrganizations().done(function(result) {
     console.log(result);
     var organizations = result['organizations'];
+
+
+    if(organizations.length > 0) {
+
+    }
+    else {
+      $('#organization-list').find(".sorry-text").show();
+    }
+
     for(var i=0; i<organizations.length; i++) {
       createOrganization(organizations[i]);
     }
+
+
   });
   function createOrganization(organization) {
+    $('#organization-list').find("sorry-text").hide();
     var cloned = $("#organization-template").clone();
     cloned.removeAttr('id');
     cloned.removeAttr('style');
@@ -69,7 +81,7 @@ $(document).ready(function() {
 
     $('#organization-list').append(cloned);
   }
-  function createUser(user, rootElement) {
+  function createUser(user, rootElement, jobId) {
 
     var cloned = $("#user-row-detail-template").clone();
     cloned.removeAttr('id');
@@ -81,7 +93,10 @@ $(document).ready(function() {
       cloned.remove();
       user['id'] = null;
     });
-    cloned.find(".timesheet-user-btn").attr("href", "/timesheet/"+user['id']);
+    Database.listTimesheetsByUserIdAndJobId(user['id'], jobId).done(function(result) {
+      cloned.find(".timesheet-user-btn").attr("href", "/timesheet/"+result['timesheets'][0]['id']);
+    });
+
 
     rootElement.append(cloned);
   }
@@ -99,7 +114,7 @@ $(document).ready(function() {
         var users = result['users'];
 
         for(var i=0; i<users.length; i++) {
-          createUser(users[i], modal.find(".user-list-row").first());
+          createUser(users[i], modal.find(".user-list-row").first(), job['id']);
         }
 
       });
@@ -156,16 +171,15 @@ $(document).ready(function() {
   <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
       <div class="row" id="new-org-header">
-        <label class="col-sm-3 control-label">New Organization Name</label>
-        <div class="col-sm-7">
+        <div class="col-sm-9">
             <input type="text" class="form-control new-org-text" placeholder="New Organization Name">
         </div>
         <div class="col-sm-2">
-          <button type="button" class="btn btn-primary btn-block new-org-create">Create New</button>
+          <button type="button" class="btn btn-primary new-org-create">Create New</button>
         </div>
       </div>
       <div class="row"  id="organization-list" >
-
+        <h4 class='text-center sorry-text' style="display: none;">Sorry, You Do Not Have Any Organizations</h4>
       </div>
     </div>
   </div>

@@ -92,6 +92,14 @@ Database.listTimesheetsByUserId = function(userId) {
     dataType: "json"
   });
 }
+Database.listTimesheetsByUserIdAndJobId = function(userId, jobId) {
+  return $.ajax({
+    type: "GET",
+    url: "/api/v1/timesheets?userId="+userId+"&"+jobId,
+    // url: "/api/v1/timesheets",
+    dataType: "json"
+  });
+}
 Database.createTimesheet = function(data) {
   var jsondata = JSON.stringify({"timesheet":data});
   console.log(jsondata);
@@ -135,6 +143,20 @@ Database.getTimesheet = function(id) {
   return $.ajax({
     type: "GET",
     url: "/api/v1/timesheets/"+id,
+    dataType: "json"
+  });
+}
+Database.clockIn = function(id) {
+  return $.ajax({
+    type: "GET",
+    url: "/api/v1/timesheets/"+id +"/clockin",
+    dataType: "json"
+  });
+}
+Database.clockOut = function(id) {
+  return $.ajax({
+    type: "GET",
+    url: "/api/v1/timesheets/"+id +"/clockout",
     dataType: "json"
   });
 }

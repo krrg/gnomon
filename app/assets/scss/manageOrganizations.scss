@@ -15,11 +15,11 @@ $edgesizeextra: $edgesize + 5;
   padding-right:10px;
 }
 .org-details-outer {
-  margin-top:15px;
+  margin-top:10px;
 }
 .org-detail-body {
-  padding-left:25px;
-  padding-right:25px;
+  padding-left:10px;
+  padding-right:10px;
 }
 .left-content {
   width: calc(100% - #{$edgesizeextra});
@@ -31,4 +31,9 @@ $edgesizeextra: $edgesize + 5;
 }
 #new-org-header {
   margin-top: 10px;
+
+}
+.row {
+  margin-left: 0px;
+  margin-right: 0px;
 }
