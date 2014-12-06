@@ -17,10 +17,14 @@ import base64
 from datetime import datetime
 
 
+
 @api.route('/users', methods=['GET'])
 def api_users_list():
     users = []
-    if 'username' in request.args:
+
+    if 'jobId' in request.args:
+        users.extend(api_users_filter_by_jobid(request.args['jobId']))
+    elif 'username' in request.args:
         filter = request.args['username']
         users.extend(db['users'].find({"username": filter}))
     else:
@@ -32,6 +36,22 @@ def api_users_list():
             "username": user["username"]
         }, users))
     })
+
+@auth_required
+def api_users_filter_by_jobid(jobid):
+
+    from views.api.jobs import Job
+
+    if not Job.is_user_owner(session['userid'], jobid):
+        return make_response(jsonify({
+            "error": {
+                "msg": "You do not own the specified job."
+            }
+        }))
+
+    users_in_job = db['timesheets'].find({"jobid": jobid}, {"userid": 1})
+
+    return [x['userid'] for x in users_in_job]
 
 
 @api.route('/users/<userid>', methods=['GET'])
