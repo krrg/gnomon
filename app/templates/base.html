@@ -25,7 +25,20 @@
 {% include 'navbar-top.html' %}
 
 
-    {% block content %}{% endblock %}
+{% if 'userid' in session %}
+<script>
+var GnomonSession = (function(){
+    var internal = {};
+    internal.userid = "{{ session['userid'] }}";
+    return internal;
+})();
+</script>
+{% endif %}
+
+
+{% block content %}{% endblock %}
+
+
 
 
 

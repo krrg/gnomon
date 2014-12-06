@@ -5,13 +5,27 @@
 <div class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
-            <a href="#" class="navbar-brand">GNOMON</a>
+            <a href="/" class="navbar-brand">GNOMON</a>
         </div>
 
-        <a class="btn btn-primary navbar-btn navbar-right" href="/login">Login</a>
+        <div class="nav navbar-nav navbar-right">
+            <form action="/login">
+                <button class="btn btn-primary navbar-btn">Login</button>
+            </form>
+        </div>
     </div>
 </div>
 
+{% elif loginpage %}
+{# Special blank navbar for login page #}
+
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="/" class="navbar-brand">GNOMON</a>
+        </div>
+    </div>
+</div>
 
 {% else %}
 {# User is logged in: #}
@@ -27,28 +41,26 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">GNOMON</a>
+                <a class="navbar-brand" href="/">GNOMON</a>
+        </div>
+
+        <div class="nav navbar-nav navbar-right">
+            <form action="/logout">
+                <button class="btn btn-primary navbar-btn">Logout</button>
+            </form>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Link</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something else here</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Separated link</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">One more separated link</a></li>
-                    </ul>
-                </li>
+                {% for link in navlinks %}
+                    <li {%if link['href'] == request.url_rule.rule %} class="bg-primary"{%endif%}><a href="{{link['href']}}">{{link['text']}}</a></li>
+                {% endfor %}
             </ul>
         </div><!-- /.navbar-collapse -->
+
+
+
     </div><!-- /.container-fluid -->
 </nav>
 {%endif %}
