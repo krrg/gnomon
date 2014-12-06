@@ -8,6 +8,8 @@
 <script src="/static/js/database.js"></script>
 {% endassets %}
 <script>
+var timesheetId = {{ tid }};
+
 $(document).ready(function(){
   makeTimesheet(TimeTools.testTimesheet);
   // Database.getTimesheet("id").done(function(data){

@@ -38,7 +38,7 @@ def timesheet(tid):
     if not db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']}):
         return "<html><body><h1>Error:</h1><h3>You don't have permission to view this timesheet!</h3></body></html>"
 
-    return render_template("root/timesheet.html", navlinks=navlinks)
+    return render_template("root/timesheet.html", navlinks=navlinks, tid=tid)
 
 @app.route('/clockin')
 @login_page_first
