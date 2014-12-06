@@ -1,11 +1,12 @@
-from functools import wraps
 from itertools import chain
+
 from app.views.api import api
 from apiwrappers import expect_json_body
 from blist import sortedlist
-from flask import request, session, jsonify, abort, make_response
+from flask import request, session, jsonify, make_response
 from app.__init__ import db
 from auth import auth_required
+
 
 # Mongo id lookups
 from bson import ObjectId
@@ -51,7 +52,6 @@ def api_timesheet_list():
 @expect_json_body
 @auth_required
 def api_timesheet_create(body):
-
     from app.views.api.jobs import Job
 
     try:
@@ -70,7 +70,8 @@ def api_timesheet_create(body):
             timesheet = db['timesheets'].find_one({"userid": hired_user_id, "jobid": jobid})
             return jsonify({
                 "timesheet": {
-                    "id": str(timesheet['_id'])
+                    "id": str(timesheet['_id']),
+                    "msg": "Warning, the specified user {} already has an existing timesheet!".format(hired_user_id)
                 }
             })
 
@@ -261,7 +262,6 @@ def api_clock_delete(tid):
             }))
 
 
-
 @api.route("/timesheets/<id>", methods=['DELETE'])
 def api_timesheets_delete(id):
     make_response(jsonify({
@@ -272,7 +272,6 @@ def api_timesheets_delete(id):
 
 
 class Clock:
-
     class InvalidClockError(Exception):
         pass
 
@@ -321,7 +320,6 @@ class Clock:
 
 
 class Timesheet:
-
     def __init__(self, timesheet):
         self.T = timesheet
 
@@ -335,11 +333,11 @@ class Timesheet:
 
         # This part is pretty hacked---convert this to part of the mongo query or just use SQL in future renditions.
         for timesheet in chain.from_iterable([mine, owned]):
-            t = timesheet.to_json()
+            t = timesheet.to_dict()
             if all([
-                not jobId or t['jobId'] == jobId,       # Either they didn't specify a field or it must match.
-                not userId or t['userId'] == userId,
-                not status or t['status'] == status
+                        not jobId or t['jobId'] == jobId,  # Either they didn't specify a field or it must match.
+                        not userId or t['userId'] == userId,
+                        not status or t['status'] == status
             ]):
                 timesheet_map[t['id']] = t
 
@@ -347,17 +345,22 @@ class Timesheet:
 
     @staticmethod
     def __get_owned_timesheets(orgid=None):
-        owned = []
+        owned_jobs = []
         if not orgid:
-            organizations = db['organizations'].find({"ownerid": session['userid']})
+            organizations = list(db['organizations'].find({"ownerid": session['userid']}))
         else:
-            organizations = db['organizations'].find({"ownerid": session['userid'], "orgid": orgid})
+            organizations = list(db['organizations'].find({"ownerid": session['userid'], "orgid": orgid}))
 
         if organizations:
             for org in organizations:
-                jobs = db['jobs'].find({"orgid": org['_id']})
-                owned.extend(jobs if jobs else [])
-        return owned
+                jobs = db['jobs'].find({"orgid": str(org['_id'])}, {"jobid": 1})
+                owned_jobs.extend(jobs if jobs else [])
+
+        for job in owned_jobs:
+            for t in db['timesheets'].find({"jobid": str(job['_id'])}):
+                print t
+                yield Timesheet(t)
+
 
     def can_user_view(self, userid):
         if self.T.userid == userid:
@@ -378,14 +381,13 @@ class Timesheet:
 
         return orgid in owned_organizations
 
-    def to_json(self):
-        return jsonify({
-            "timesheet": {
-                "id": str(self.T['_id']),
-                "userId": self.T.userid,
-                "jobId": self.T.jobid,
-                "clockedIn": self.T.clockedIn if self.T.clockedIn else [],
-                "clockedOut": self.T.clockedOut if self.T.clockedOut else [],
-                "status": self.T.status
-            }
-        })
+    def to_dict(self):
+        return {
+            "id": str(self.T['_id']),
+            "userId": self.T['userid'],
+            "jobId": self.T['jobid'],
+            "clockedIn": self.T['clockedIn'] if 'clockedIn' in self.T else [],
+            "clockedOut": self.T['clockedOut'] if 'clockedOut' in self.T else [],
+            "status": self.T['status']
+        }
+

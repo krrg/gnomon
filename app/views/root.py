@@ -4,6 +4,26 @@ from flask import render_template
 from app.views.wrappers import login_page_first
 
 
+navlinks = [
+    {
+        "href": "/clockin",
+        "text": "Clock"
+    },
+    {
+        "href": "/timesheet",
+        "text": "Timesheet"
+    },
+    {
+        "href": "/manageOrganizations",
+        "text": "Organizations"
+    },
+    {
+        "href": "/searchUsers",
+        "text": "Search Users"
+    }
+]
+
+
 @app.route('/')
 @app.route('/index.html')
 def root_index():
@@ -13,23 +33,23 @@ def root_index():
 @app.route('/timesheet.html')
 @login_page_first
 def timesheet():
-    return render_template("root/timesheet.html")
+    return render_template("root/timesheet.html", navlinks=navlinks)
 
 @app.route('/clockin')
 @login_page_first
 def clockin():
-    return render_template("root/clockin.html")
+    return render_template("root/clockin.html", navlinks=navlinks)
 
 @app.route('/manageOrganizations')
 @login_page_first
 def manageOrganizations():
-    return render_template("root/manageOrganizations.html")
+    return render_template("root/manageOrganizations.html", navlinks=navlinks)
 
 @app.route('/login')
 def login():
-    return render_template("root/login.html")
+    return render_template("root/login.html", loginpage=True)
 
 @app.route('/searchUsers')
 # @login_page_first
 def searchUsers():
-    return render_template("root/searchUsers.html")
+    return render_template("root/searchUsers.html", navlinks=navlinks)
