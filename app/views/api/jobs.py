@@ -104,17 +104,26 @@ def api_jobs_update(body, jid):
                 "msg": "Error, the specified job '{}' does not exist!".format(jid)
             }
         }))
+    try:
+        body = body['job']
+        job['name'] = body['name'] if 'name' in body else job['name']
+        job['description'] = body['description'] if 'description' in body else job['description']
 
-    job['name'] = body['name'] if 'name' in body else job['name']
-    job['description'] = body['description'] if 'description' in body else job['description']
+        db['jobs'].save(job)
 
-    db['jobs'].save(job)
-
-    return jsonify({
-        "job": {
-            "id": jid
-        }
-    })
+        return jsonify({
+            "job": {
+                "id": jid,
+                # "name": job['name'],
+                # "description": job['description']
+            }
+        })
+    except KeyError as e:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Missing key on '{}'".format(str(e))
+            }
+        }))
 
 
 @api.route("/jobs/<jid>", methods=['DELETE'])
