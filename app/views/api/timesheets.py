@@ -66,10 +66,24 @@ def api_timesheet_create(body):
                 }
             }), 401)
 
-        db['timesheet'].insert({
+        if Job.is_user_worker(hired_user_id, jobid):
+            timesheet = db['timesheet'].find_one({"userid": hired_user_id, "jobid": jobid})
+            return jsonify({
+                "timesheet": {
+                    "id": str(timesheet['_id'])
+                }
+            })
+
+        tid = db['timesheet'].insert({
             "userid": hired_user_id,
             "jobid": jobid,
             "status": "pending"
+        })
+
+        return jsonify({
+            "timesheet": {
+                "id": str(tid)
+            }
         })
 
     except KeyError:
