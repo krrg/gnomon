@@ -156,7 +156,7 @@ def api_clock_clockin(tid):
         db['timesheets'].save(timesheet)
         return jsonify({
             "success": {
-                "Okay"
+                "msg": "Okay"
             }
         })
 
@@ -182,7 +182,7 @@ def api_clock_clockout(tid):
         db['timesheets'].save(timesheet)
         return jsonify({
             "success": {
-                "Okay"
+                "msg": "Okay"
             }
         })
 
