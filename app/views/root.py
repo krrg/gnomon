@@ -1,6 +1,7 @@
 
 from app import app
 from flask import render_template
+from views.wrappers import login_page_first
 
 
 @app.route('/')
@@ -10,14 +11,17 @@ def root_index():
 
 @app.route('/timesheet')
 @app.route('/timesheet.html')
+@login_page_first
 def timesheet():
     return render_template("root/timesheet.html")
 
 @app.route('/clockin')
+@login_page_first
 def clockin():
     return render_template("root/clockin.html")
 
 @app.route('/manageOrganizations')
+@login_page_first
 def manageOrganizations():
     return render_template("root/manageOrganizations.html")
 
@@ -26,5 +30,6 @@ def login():
     return render_template("root/login.html")
 
 @app.route('/searchUsers')
+# @login_page_first
 def searchUsers():
     return render_template("root/searchUsers.html")
