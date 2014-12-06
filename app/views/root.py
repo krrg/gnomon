@@ -15,6 +15,11 @@ def root_index():
 def timesheet():
     return render_template("root/timesheet.html")
 
+@app.route('/timesheet2')
+@login_page_first
+def timesheet2():
+    return render_template("root/timesheet2.html")
+
 @app.route('/clockin')
 @login_page_first
 def clockin():
