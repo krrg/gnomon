@@ -5,85 +5,229 @@
 {% assets "css_manageOrganizations" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
 {% endassets %}
+<script src="/static/js/database.js"></script>
+<script>
+$(document).ready(function() {
+  Database.listOrganizations().done(function(result) {
+    console.log(result);
+    var organizations = result['organizations'];
+    for(var i=0; i<organizations.length; i++) {
+      createOrganization(organizations[i]);
+    }
+  });
+  function createOrganization(organization) {
+    var cloned = $("#organization-template").clone();
+    cloned.removeAttr('id');
+    cloned.removeAttr('style');
+
+    var initDetails = false;
+
+    cloned.find(".job-plus-btn").click(function() {
+      var modal = $('#job-create');
+      modal.find(".job-modal-name").first().val("");
+      modal.find(".job-modal-description").first().val("");
+      modal.modal('show');
+      $("#create-job-modal-btn").click(function() {
+        $("#create-job-modal-btn").attr("disabled", "disabled");
+        var name = modal.find(".job-modal-name").first().val();
+        var description = modal.find(".job-modal-description").first().val();
+        var orgId = organization['id'];
+        var job = {'name':name, 'description':description, "organizationId": orgId};
+        Database.createJob(job).done(function(result){
+          job['id'] = result['job']['id'];
+          createJob(job, cloned);
+          modal.modal('hide');
+          $("#create-job-modal-btn").removeAttr("disabled");
+        });
+      });
+    })
+    cloned.find(".org-title").html(organization['name']);
+    cloned.find(".edit-org").click(function() {
+      if(initDetails) {
+        cloned.find(".org-details-outer").fadeToggle();
+        return;
+      }
+
+      initDetails = true;
+
+      Database.listJobs(organization['id']).done(function(result) {
+        console.log(result);
+        var jobs = result['jobs'];
+        for(var i=0; i<jobs.length; i++) {
+          console.log(jobs);
+          createJob(jobs[i], cloned);
+        }
+      });
+
+
+      cloned.find(".org-details-outer").fadeToggle();
+    });
+    cloned.find(".delete-org").click(function() {
+      console.log(organization);
+    })
+
+    $('#organization-list').append(cloned);
+  }
+  function createJob(job, rootElement) {
+    var cloned = $("#job-template").clone();
+    cloned.removeAttr('id');
+    cloned.removeAttr('style');
+    console.log(job['name']);
+    cloned.find(".job-title").html(job['name']);
+    cloned.find(".job-edit-btn").click(function() {
+      var modal = $('#job-edit');
+      modal.find('.modal-title').html(job['name']);
+      modal.find(".job-modal-name").first().val(job['name']);
+      modal.find(".job-modal-description").first().val(job['description']);
+
+      modal.find(".save-changes").click(function() {
+
+        var name = modal.find(".job-modal-name").first().val();
+        var description = modal.find(".job-modal-description").first().val();
+        modal.find(".save-changes").attr("disabled", "disabled");
+
+        var updatedJob = {'name':name, 'description':description};
+        Database.updateJob(job['id'], updatedJob).done(function(result) {
+          console.log(result);
+          job['name'] = updatedJob['name'];
+          cloned.find(".job-title").html(job['name']);
+          job['description'] = updatedJob['description'];
+          modal.find(".save-changes").removeAttr("disabled");
+          modal.modal('hide');
+        });
+
+      });
+
+      modal.modal('show');
+    });
+
+    rootElement.find(".org-jobs-list").append(cloned);
+  }
+});
+</script>
+
 {% endblock %}
 
 {% block content %}
-<div id="clock-in-list" class="container-fluid">
+<divclass="container-fluid">
   <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
-      <div class="row">
-        <div class="col-sm-12 org-detail-outer">
-          <div class="org-detail-inner">
-            <div class="left-content">
+      <div class="row"  id="organization-list" >
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="organization-template" class="col-sm-12" style="display: none;">
+  <div class="org-detail-outer">
+    <div class="org-detail-inner">
+      <div class="row org-detail-list">
+        <div class="col-12-xs">
+          <div class="org-detail-header">
+            <div class="left-content org-title">
               This is an organization
             </div>
             <div class="right-content">
               <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-primary">
+                <button type="button" class="btn btn-primary edit-org">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-primary">
+                <button type="button" class="btn btn-primary delete-org">
                   <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="col-sm-12 org-detail-outer">
-          <div class="org-detail-inner">
-            <div class="left-content">
-              This is an organization
-            </div>
-            <div class="right-content">
-              <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </button>
+        <div class="col-12-xs org-details-outer" style="display: none">
+          <div class="row">
+            <div class="col-12-xs">
+              <div class="org-detail-body">
+                <div class="left-content">
+                  <strong>Current Jobs</strong>
+                </div>
+                <div class="right-content">
+                  <div class="btn-group" role="group" aria-label="...">
+                    <button type="button" class="btn btn-primary job-plus-btn">
+                      <span class="glyphicon glyphicon-plus " aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
               </div>
+            </div>
+            <div class="col-12-xs org-jobs-list">
+
             </div>
           </div>
         </div>
-
-        <div class="col-sm-12 org-detail-outer">
-          <div class="org-detail-inner">
-            <div class="left-content">
-              This is an organization
-            </div>
-            <div class="right-content">
-              <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </button>
-              </div>
-            </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="org-detail-body" id="job-template" style="display:none">
+  <div class="left-content job-title">
+    This is a Job
+  </div>
+  <div class="right-content">
+    <div class="btn-group" role="group" aria-label="...">
+      <button type="button" class="btn btn-primary job-edit-btn">
+        <span class="glyphicon glyphicon-edit " aria-hidden="true"></span>
+      </button>
+      <button type="button" class="btn btn-primary">
+        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="job-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="job-title-edit">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <label class="col-sm-2 control-label">Name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control job-modal-name" placeholder="Name of Job">
+          </div>
+          <label class="col-sm-2 control-label">Description</label>
+          <div class="col-sm-10">
+            <textarea class="form-control job-modal-description" rows="3"></textarea>
           </div>
         </div>
-
-        <div class="col-sm-12 org-detail-outer">
-          <div class="org-detail-inner">
-            <div class="left-content">
-              This is an organization
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-changes">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="job-create" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Create New Job</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+            <label class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control job-modal-name" placeholder="Name of Job">
             </div>
-            <div class="right-content">
-              <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </button>
-              </div>
+            <label class="col-sm-2 control-label">Description</label>
+            <div class="col-sm-10">
+              <textarea class="form-control job-modal-description" rows="3"></textarea>
             </div>
-          </div>
         </div>
-
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="create-job-modal-btn">Create Job</button>
       </div>
     </div>
   </div>

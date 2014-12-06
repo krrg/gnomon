@@ -2,12 +2,24 @@ $edgesize: 100px;
 $edgesizeextra: $edgesize + 5;
 
 .org-detail-outer {
-  padding: 5px;
+  margin-top: 10px;
 }
 .org-detail-inner {
   border: 2px solid;
   border-radius: 5px;
   padding:10px;
+  border-color:black;
+}
+.org-detail-header {
+  padding-left:10px;
+  padding-right:10px;
+}
+.org-details-outer {
+  margin-top:15px;
+}
+.org-detail-body {
+  padding-left:25px;
+  padding-right:25px;
 }
 .left-content {
   width: calc(100% - #{$edgesizeextra});
