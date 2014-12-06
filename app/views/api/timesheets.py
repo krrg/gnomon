@@ -344,7 +344,7 @@ class Clock:
 
     def __validate_none_in_future(self):
         current_time = time.time() * 1000
-        return all(map(lambda stamp: stamp <= current_time, chain([self.cin, self.cout])))
+        return all(map(lambda stamp: stamp <= current_time, chain(self.cin, self.cout)))
 
     def __validate(self):
         if len(self.cin) != len(self.cout):
