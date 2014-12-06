@@ -413,8 +413,8 @@ class Timesheet:
             "id": str(self.T['_id']),
             "userId": self.T['userid'],
             "jobId": self.T['jobid'],
-            "clockedIn": self.T['clockedIn'] if 'clockedIn' in self.T else [],
-            "clockedOut": self.T['clockedOut'] if 'clockedOut' in self.T else [],
+            "clockIn": self.T['clockIn'] if 'clockIn' in self.T else [],
+            "clockOut": self.T['clockOut'] if 'clockOut' in self.T else [],
             "status": self.T['status']
         }
 
