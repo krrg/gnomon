@@ -20,7 +20,7 @@ def api_jobs_list():
             "name": job['name'],
             "organizationId": job['orgid'],
             "description": job['description'] if 'description' in job else ""
-        }] for job in Job.get_jobs_with_permissions(orgid=orgid, name=name)
+        } for job in Job.get_jobs_with_permissions(orgid=orgid, name=name)]
     })
 
 
