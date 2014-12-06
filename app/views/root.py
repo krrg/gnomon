@@ -1,7 +1,7 @@
 
 from app import app
 from flask import render_template
-from views.wrappers import login_page_first
+from app.views.wrappers import login_page_first
 
 
 @app.route('/')
