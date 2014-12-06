@@ -153,6 +153,7 @@ def api_clock_clockin(tid):
             }
         }))
     else:
+        timesheet['clockIn'] = list(clock.cin)
         db['timesheets'].save(timesheet)
         return jsonify({
             "success": {
@@ -179,6 +180,7 @@ def api_clock_clockout(tid):
             }
         }))
     else:
+        timesheet['clockOut'] = list(clock.cout)
         db['timesheets'].save(timesheet)
         return jsonify({
             "success": {
