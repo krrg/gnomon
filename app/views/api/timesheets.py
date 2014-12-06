@@ -210,25 +210,25 @@ def api_timesheet_update(body, tid):
                 "timesheet": {"id": tid}
             })
 
-        if 'clockInOriginal' in body and 'clockInReplacement' in body:
-            cin_orig = body['clockInOriginal']
-            cin_repl = body['clockInReplacement']
+        if 'clockOriginal' in body and 'clockReplacement' in body:
+            c_orig = body['clockOriginal']
+            c_repl = body['clockReplacement']
 
             clock = Clock(timesheet)
-            if not clock.replace_in(cin_orig, cin_repl):
+            if not clock.replace(c_orig, c_repl):
                 raise Clock.InvalidClockError("Invalid replacement times.")
             else:
                 return save_timesheet()
 
-        if 'clockOutOriginal' in body and 'clockOutReplacement' in body:
-            cout_orig = body['clockOutOriginal']
-            cout_repl = body['clockOutReplacement']
-
-            clock = Clock(timesheet)
-            if not clock.replace_out(cout_orig, cout_repl):
-                raise Clock.InvalidClockError("Invalid replacement times.")
-            else:
-                return save_timesheet()
+        # if 'clockOutOriginal' in body and 'clockOutReplacement' in body:
+        #     cout_orig = body['clockOutOriginal']
+        #     cout_repl = body['clockOutReplacement']
+        #
+        #     clock = Clock(timesheet)
+        #     if not clock.replace_out(cout_orig, cout_repl):
+        #         raise Clock.InvalidClockError("Invalid replacement times.")
+        #     else:
+        #         return save_timesheet()
 
     except KeyError as e:
         return make_response(jsonify({
@@ -307,6 +307,14 @@ class Clock:
         self.cout.add(o)
 
         return self.__validate()
+
+    def replace(self, orig, repl):
+        if orig in self.cin:
+            return self.replace_in(orig, repl)
+        elif orig in self.cout:
+            return self.replace_out(orig, repl)
+        else:
+            return False
 
     def replace_in(self, in_orig, in_repl):
         self.cin.remove(in_orig)
