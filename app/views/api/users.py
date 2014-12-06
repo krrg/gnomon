@@ -40,7 +40,7 @@ def api_users_list():
 @auth_required
 def api_users_filter_by_jobid(jobid):
 
-    from views.api.jobs import Job
+    from app.views.api.jobs import Job
 
     if not Job.is_user_owner(session['userid'], jobid):
         return make_response(jsonify({

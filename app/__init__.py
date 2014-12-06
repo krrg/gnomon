@@ -74,7 +74,7 @@ app.register_blueprint(api, url_prefix='/api/v1')
 #####################################################################
 
 # MongoDB information
-MONGODB_HOST = 'localhost'
+MONGODB_HOST = '192.168.10.122'
 MONGODB_PORT = 27017
 
 MONGODB_DBNAME = 'Nomong'  # Gnomon, only backwards.

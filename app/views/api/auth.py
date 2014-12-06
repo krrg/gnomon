@@ -61,7 +61,7 @@ def attempt_auth_login(username, password):
     attempted_hash = PasswordAuth.hash_pw(password, salt)
 
     if attempted_hash == stored_hash:
-        session['userid'] = user['_id']
+        session['userid'] = str(user['_id'])
         return True
     else:
         return False
