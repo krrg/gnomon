@@ -8,13 +8,15 @@
 <script src="/static/js/database.js"></script>
 {% endassets %}
 <script>
-var timesheetId = {{ tid }};
+var timesheetId = "{{ tid }}";
 
 $(document).ready(function(){
-  makeTimesheet(TimeTools.testTimesheet);
-  // Database.getTimesheet("id").done(function(data){
-  //   makeTimesheet(data['timesheet']);
-  // });
+
+
+  // makeTimesheet(TimeTools.testTimesheet);
+  Database.getTimesheet(timesheetId).done(function(data){
+    makeTimesheet(data['timesheet']);
+  });
 });
 
 function makeTimesheet(ts){
@@ -23,22 +25,53 @@ function makeTimesheet(ts){
   var currentTimestap = null;
   var editorTimestamp = null;
 
+  var lastSunday = TimeTools.getLastSunday(new Date().getTime());
+  lastSunday.setDate(lastSunday.getDate() + 7);
+  var thresholdSundayTime = lastSunday.getTime();
+
   var weeks = TimeTools.getWeeks(ts['clockedIn'], ts['clockedOut']);
 
-  for(var i=weeks.length-1; i>= 0; i--) {
-    createWeek(weeks[i]);
+  var firstSunday = TimeTools.getLastSunday(new Date().getTime());
+  if(weeks.length > 0) {
+    firstSunday = TimeTools.getLastSunday(weeks[0]['in'][0]);
   }
-  function createWeek(week) {
+
+  var weekIndex = 0;
+  while(firstSunday < lastSunday) {
+
+    var week = {"in":[], "out":[]};
+    if(weeks.length > weekIndex) {
+      var nextWeek = weeks[weekIndex];
+      var nextWeekSunday = TimeTools.getLastSunday(nextWeek['in'][0]);
+
+      if(nextWeekSunday === firstSunday) {
+        week = nextWeek;
+        weekIndex++;
+      }
+    }
+
+    createWeek(week, firstSunday);
+
+    firstSunday.setDate(firstSunday.getDate()+7);
+  }
+
+  // for(var i=weeks.length-1; i>= 0; i--) {
+  //   createWeek(weeks[i]);
+  // }
+
+
+
+  function createWeek(week, sunday) {
     var cloned = $("#week-section-template").clone();
     cloned.removeAttr('id');
     cloned.removeAttr('style');
 
-    var sunday = TimeTools.getLastSunday(week['in'][0]);
+    //var sunday = TimeTools.getLastSunday(week['in'][0]);
     cloned.find(".week-header").html("Week of "+TimeTools.monthNames[sunday.getMonth()]+" " + sunday.getDate()+", "+sunday.getFullYear());
 
     var days = TimeTools.getDays(week['in'], week['out']);
     var dayIndex = 0;
-    console.log(week);
+
     for(var i=0; i<7; i++) {
       var day = null
       if(days.length > dayIndex) {
@@ -139,7 +172,7 @@ function makeTimesheet(ts){
       var newTime = TimeTools.objectToMS(inHourMinutes);
       var inTime = editorTimestamp + newTime;
       if(inTime) {
-        data['clockin'] = inTime;
+        data['clockIn'] = inTime;
       }
     }
 
@@ -150,12 +183,12 @@ function makeTimesheet(ts){
       var newTime = TimeTools.objectToMS(outHourMinutes);
       var outTime = editorTimestamp + newTime;
       if(outTime) {
-        data['clockout'] = outTime;
+        data['clockOut'] = outTime;
       }
     }
 
     if(inTime || (inTime && outTime)) {
-      Database.createClock(data, GnomonSession.userid).done(function(){
+      Database.createClock(data, timesheetId).done(function(){
         console.log("created success");
       });
     }
@@ -169,13 +202,13 @@ function makeTimesheet(ts){
       if(hourMinutes != null){
         var newTime = TimeTools.objectToMS(hourMinutes);
         var totalNewTime = TimeTools.getFlatDay(currentTimestap).getTime() + newTime;
-        Database.updateClock({"clockOriginal": currentTimestap, "clockReplacement": totalNewTime}, GnomonSession.userid).done(function(){
+        Database.updateClock({"clockOriginal": currentTimestap, "clockReplacement": totalNewTime}, timesheetId).done(function(){
           alert("update success");
         });
       }
       else{
         console.log("send to server detele: "+currentTimestap);
-        Database.deleteClock(currentTimestap, GnomonSession.userid).done(function() {
+        Database.deleteClock(currentTimestap, timesheetId).done(function() {
           alert("delete success");
         });
       }
