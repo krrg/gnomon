@@ -162,7 +162,7 @@ def api_clock_clockin(tid):
 
 @api.route("/timesheets/<tid>/clockout", methods=['GET'])
 @auth_required
-def api_clock_clockin(tid):
+def api_clock_clockout(tid):
     timesheet = Timesheet.by_id(tid)
     if not timesheet.can_user_view(session['userid']):
         return make_response(jsonify({
