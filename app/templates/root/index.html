@@ -2,6 +2,27 @@
 
 {% import "/login/widget.html" as login_widget %}
 
+{%block imports %}
+<script src="/static/js/database.js"></script>
+<script>
+$(document).ready(function() {
+
+  $("#gn-register-btn").click(function(event) {
+    event.preventDefault();
+    console.log('in event')
+    var username = $("#gn-register-username").val();
+    var password = $("#gn-register-password").val();
+    Database.register(username, password).done(function(){
+      alert("success");
+    }).fail(function(){
+      alert("failed");
+    });
+  });
+});
+</script>
+
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row gnomon-index-content">

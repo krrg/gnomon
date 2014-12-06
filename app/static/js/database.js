@@ -1,6 +1,16 @@
 function Database() {
 
 }
+Database.register = function(username, password) {
+  var jsondata = JSON.stringify({"user":{"username":username, "password":password, "email":""}});
+  return $.ajax({
+    type: "POST",
+    url: "/api/v1/users",
+    dataType: "json",
+    data:jsondata,
+    contentType:"application/json"
+  });
+}
 Database.listOrganizations = function() {
   return $.ajax({
     type: "GET",

@@ -27,6 +27,7 @@ $(document).ready(function() {
       modal.find(".job-modal-name").first().val("");
       modal.find(".job-modal-description").first().val("");
       modal.modal('show');
+      $("#create-job-modal-btn").off("off");
       $("#create-job-modal-btn").click(function() {
         $("#create-job-modal-btn").attr("disabled", "disabled");
         var name = modal.find(".job-modal-name").first().val();
