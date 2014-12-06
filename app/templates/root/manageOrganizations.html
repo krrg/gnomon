@@ -56,7 +56,6 @@ $(document).ready(function() {
         console.log(result);
         var jobs = result['jobs'];
         for(var i=0; i<jobs.length; i++) {
-          console.log(jobs);
           createJob(jobs[i], cloned);
         }
       });
@@ -70,17 +69,45 @@ $(document).ready(function() {
 
     $('#organization-list').append(cloned);
   }
+  function createUser(user, rootElement) {
+
+    var cloned = $("#user-row-detail-template").clone();
+    cloned.removeAttr('id');
+    cloned.removeAttr('style');
+
+    cloned.find(".user-username").html(user['username']);
+    cloned.find(".delete-user-btn").click(function(){
+      console.log("delete user: "+user['id']);
+      cloned.remove();
+      user['id'] = null;
+    });
+    cloned.find(".timesheet-user-btn").click(function(){
+      console.log("timesheet for user: "+user['id']);
+
+    });
+    rootElement.append(cloned);
+  }
   function createJob(job, rootElement) {
     var cloned = $("#job-template").clone();
     cloned.removeAttr('id');
     cloned.removeAttr('style');
-    console.log(job['name']);
+
     cloned.find(".job-user-btn").off('click');
     cloned.find(".job-edit-btn").off('click');
     cloned.find(".job-user-btn").click(function() {
+      var modal = $("#job-user-list-modal");
+      modal.find(".user-list-row").empty();
       Database.listUsersByJob(job['id']).done(function(result) {
-        console.log(result);
+        var users = result['users'];
+
+        for(var i=0; i<users.length; i++) {
+          createUser(users[i], modal.find(".user-list-row").first());
+        }
+
       });
+
+      modal.modal("show");
+
     });
 
     cloned.find(".job-title").html(job['name']);
@@ -258,5 +285,34 @@ $(document).ready(function() {
       </div>
     </div>
   </div>
+</div>
+<div class="modal fade" id="job-user-list-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">User In This Job</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row user-list-row">
+
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-sm-12" id="user-row-detail-template" style="display: none;">
+  <button type="button" class="btn btn-default delete-user-btn">
+    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+  </button>
+  <button type="button" class="btn btn-default timesheet-user-btn">
+    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+  </button>
+  <span class="user-username">username2</span>
 </div>
 {% endblock %}

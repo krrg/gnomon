@@ -1,8 +1,16 @@
 $(document).ready(function() {
-  var rowDiv = createNewRow();
 
-  $(rowDiv).append(createNewClock(TimeTools.testTimesheet));
-  $(rowDiv).append(createNewClock(TimeTools.testTimesheet));
+  createTimesheets([TimeTools.testTimesheet,TimeTools.testTimesheet,TimeTools.testTimesheet])
+
+  function createTimesheets(timesheets) {
+    var rowDiv = null;
+    for(var i=0; i<timesheets.length; i++){
+      if(i%2 === 0) {
+        rowDiv = createNewRow();
+      }
+      $(rowDiv).append(createNewClock(TimeTools.testTimesheet));
+    }
+  }
 
   function createNewClock(timesheet) {
 
@@ -23,6 +31,10 @@ $(document).ready(function() {
     var cloned = $("#clock-in-template").clone();
     cloned.removeAttr('id');
     cloned.removeAttr('style');
+
+    cloned.find(".clock-in-btn").click(function(){
+      console.log('here');
+    });
 
     cloned.find(".clock-in-title-text").html("Name Of Job")
     cloned.find(".clock-in-week").html("<strong>Week:</strong> "+TimeTools.msToReadable(weekTime));
