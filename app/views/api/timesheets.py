@@ -1,6 +1,8 @@
+from functools import wraps
 from itertools import chain
 from app.views.api import api
 from apiwrappers import expect_json_body
+from blist import sortedlist
 from flask import request, session, jsonify, abort, make_response
 from app.__init__ import db
 from auth import auth_required
@@ -77,13 +79,172 @@ def api_timesheet_create(body):
         }), 400)
 
 
-@api.route("/timesheets/<id>", methods=['PUT'])
-def api_timesheets_update(id):
-    make_response(jsonify({
-        "error": {
-            "msg": "Sorry, this hasn't been implemented yet."
+@api.route("/timesheets/<tid>", methods=['PUT'])
+@auth_required
+@expect_json_body
+def api_timesheets_update(body, tid):
+    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
+    if not timesheet:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
+                       "or the timesheet does not exist."
+            }
+        }), 400)
+
+    if 'status' not in body or body['status'] != "active":
+        return make_response(jsonify({
+            "error": {
+                "Could not find value on 'status' that is valid for this context."
+            }
+        }))
+
+    timesheet['status'] = 'active'
+
+    return jsonify({
+        "timesheet": {
+            "id": tid
         }
-    }), 501)
+    })
+
+
+@api.route("/timesheets/<tid>/clock", methods=['POST'])
+@auth_required
+@expect_json_body
+def api_clock_append(body, tid):
+    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
+    if not timesheet:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
+                       "or the timesheet does not exist."
+            }
+        }), 400)
+
+    try:
+
+        timein = body['clockIn']
+        timeout = body['clockOut']
+
+        clock = Clock(timesheet)
+        if not clock.append(timein, timeout):
+            return make_response(jsonify({
+                "error": {
+                    "msg": "Your times don't match up correctly!"
+                }
+            }))
+        else:
+            timesheet['clockIn'] = clock.cin
+            timesheet['clockOut'] = clock.cout
+
+            db['timesheets'].save(timesheet)
+
+            return jsonify({
+                "id": tid,
+                "msg": "Success"
+            })
+    except KeyError as e:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Missing key '{}'".format(str(e))
+            }
+        }))
+
+
+@api.route("/timesheets/<tid>/clock", methods=['PUT'])
+@auth_required
+@expect_json_body
+def api_timesheet_update(body, tid):
+    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
+    if not timesheet:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
+                       "or the timesheet does not exist."
+            }
+        }), 400)
+
+    try:
+        def save_timesheet():
+            timesheet['clockIn'] = clock.cin
+            timesheet['clockOut'] = clock.cout
+            db['timesheets'].save(timesheet)
+
+            return jsonify({
+                "timesheet": {"id": tid}
+            })
+
+        if 'clockInOriginal' in body and 'clockInReplacement' in body:
+            cin_orig = body['clockInOriginal']
+            cin_repl = body['clockInReplacement']
+
+            clock = Clock(timesheet)
+            if not clock.replace_in(cin_orig, cin_repl):
+                raise Clock.InvalidClockError("Invalid replacement times.")
+            else:
+                return save_timesheet()
+
+        if 'clockOutOriginal' in body and 'clockOutReplacement' in body:
+            cout_orig = body['clockOutOriginal']
+            cout_repl = body['clockOutReplacement']
+
+            clock = Clock(timesheet)
+            if not clock.replace_out(cout_orig, cout_repl):
+                raise Clock.InvalidClockError("Invalid replacement times.")
+            else:
+                return save_timesheet()
+
+    except KeyError as e:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Missing key '{}'".format(str(e))
+            }
+        }), 400)
+    except Clock.InvalidClockError as e:
+        return make_response(jsonify({
+            "error": {
+                "msg": str(e)
+            }
+        }))
+
+
+@api.route("/timesheets/<tid>/clock/unix", methods=['DELETE'])
+@auth_required
+def api_clock_delete(tid):
+    timesheet = db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']})
+    if not timesheet:
+        return make_response(jsonify({
+            "error": {
+                "msg": "Error, could not change status on timesheet.  Either you don't have permissions" +
+                       "or the timesheet does not exist."
+            }
+        }), 400)
+
+    if 'clock' not in request.args:
+        try:
+            unixstamp = int(request.args)
+            clock = Clock(timesheet)
+            if clock.delete_stamp(unixstamp):
+                timesheet['clockIn'] = clock.cin
+                timesheet['clockOut'] = clock.cout
+                db['timesheets'].save(timesheet)
+
+                return jsonify({
+                    "timesheet": {"id": tid}
+                })
+            else:
+                return make_response(jsonify({
+                    "error": {
+                        "msg": "This timestamp is not present in the timesheet..."
+                    }
+                }))
+        except ValueError:
+            return make_response(jsonify({
+                "error": {
+                    "msg": "The timestamp '{}' is not a valid timestamp.".format(unixstamp)
+                }
+            }))
+
 
 
 @api.route("/timesheets/<id>", methods=['DELETE'])
@@ -93,6 +254,55 @@ def api_timesheets_delete(id):
             "msg": "Sorry, this hasn't been implemented yet."
         }
     }), 501)
+
+
+class Clock:
+
+    class InvalidClockError(Exception):
+        pass
+
+    def __init__(self, timesheet):
+        self.cin = sortedlist(timesheet['clockIn'])
+        self.cout = sortedlist(timesheet['clockOut'])
+
+    def append(self, i, o):
+        self.cin.append(i)
+        self.cout.append(o)
+
+        return self.__validate()
+
+    def replace_in(self, in_orig, in_repl):
+        self.cin.remove(in_orig)
+        self.cin.add(in_repl)
+
+        return self.__validate()
+
+    def replace_out(self, out_orig, out_repl):
+        self.cout.remove(out_orig)
+        self.cout.add(out_repl)
+
+        return self.__validate()
+
+    def delete_stamp(self, stamp):
+        if stamp in self.cout:
+            index = self.cout.index(stamp)
+        elif stamp in self.cin:
+            index = self.cin.index(stamp)
+        else:
+            return False
+
+        del self.cin[index]
+        del self.cout[index]
+
+    def __validate(self):
+        if len(self.cin) != len(self.cout):
+            return False
+
+        for clock_out, clock_in in zip(self.cout, self.cin[1:]):
+            if clock_in < clock_out:
+                return False
+
+        return True
 
 
 class Timesheet:
