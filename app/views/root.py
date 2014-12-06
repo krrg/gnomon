@@ -35,7 +35,8 @@ def root_index():
 @login_page_first
 def timesheet(tid):
     # We need to check to make sure that they have permissions to view this.
-    if not db['timesheets'].find_one({"_id": ObjectId(tid), "userid": session['userid']}):
+    from app.views.api.timesheets import Timesheet
+    if not Timesheet.by_id(tid).can_user_view(session['userid']):
         return "<html><body><h1>Error:</h1><h3>You don't have permission to view this timesheet!</h3></body></html>"
 
     return render_template("root/timesheet.html", navlinks=navlinks, tid=tid)
