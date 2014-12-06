@@ -94,7 +94,7 @@ def api_users_create():
                 'error': {
                     'msg': 'Specified username already exists!',
                 }
-            }))
+            }), 400)
 
         password = body['user']['password']
         email = body['user']['email']
