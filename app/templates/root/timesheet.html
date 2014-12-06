@@ -9,58 +9,54 @@
 {% endassets %}
 <script>
 var timesheetId = "{{ tid }}";
-
+var currentInputBox = null;
+var originalText = null;
+var currentTimestap = null;
+var editorTimestamp = null;
 $(document).ready(function(){
-
-
-  // makeTimesheet(TimeTools.testTimesheet);
-  Database.getTimesheet(timesheetId).done(function(data){
-    makeTimesheet(data['timesheet']);
-  });
-});
-
-function makeTimesheet(ts){
-  var currentInputBox = null;
-  var originalText = null;
-  var currentTimestap = null;
-  var editorTimestamp = null;
-
-  var lastSunday = TimeTools.getLastSunday(new Date().getTime());
-  lastSunday.setDate(lastSunday.getDate() + 7);
-  var thresholdSundayTime = lastSunday.getTime();
-
-  var weeks = TimeTools.getWeeks(ts['clockedIn'], ts['clockedOut']);
-
-  var firstSunday = TimeTools.getLastSunday(new Date().getTime());
-  if(weeks.length > 0) {
-    firstSunday = TimeTools.getLastSunday(weeks[0]['in'][0]);
+  function reloadDom() {
+    Database.getTimesheet(timesheetId).done(function(data){
+      $("#time-edit").hide();
+      $("body").append($("#time-edit"));
+      $("#weeks-container").empty();
+      makeTimesheet(data['timesheet']);
+    });
   }
+  function makeTimesheet(ts){
 
-  var weekIndex = 0;
-  while(firstSunday < lastSunday) {
 
-    var week = {"in":[], "out":[]};
-    if(weeks.length > weekIndex) {
-      var nextWeek = weeks[weekIndex];
-      var nextWeekSunday = TimeTools.getLastSunday(nextWeek['in'][0]);
+    var lastSunday = TimeTools.getLastSunday(new Date().getTime());
+    lastSunday.setDate(lastSunday.getDate() + 7);
+    var thresholdSundayTime = lastSunday.getTime();
 
-      if(nextWeekSunday === firstSunday) {
-        week = nextWeek;
-        weekIndex++;
-      }
+    console.log(ts);
+
+    var weeks = TimeTools.getWeeks(ts['clockIn'], ts['clockOut']);
+
+    var firstSunday = TimeTools.getLastSunday(new Date().getTime());
+    if(weeks.length > 0) {
+      firstSunday = TimeTools.getLastSunday(weeks[0]['in'][0]);
     }
 
-    createWeek(week, firstSunday);
+    var weekIndex = 0;
+    while(firstSunday < lastSunday) {
 
-    firstSunday.setDate(firstSunday.getDate()+7);
+      var week = {"in":[], "out":[]};
+      if(weeks.length > weekIndex) {
+        var nextWeek = weeks[weekIndex];
+        var nextWeekSunday = TimeTools.getLastSunday(nextWeek['in'][0]);
+
+        if(nextWeekSunday.getTime() === firstSunday.getTime()) {
+          week = nextWeek;
+          weekIndex++;
+        }
+      }
+
+      createWeek(week, firstSunday);
+
+      firstSunday.setDate(firstSunday.getDate()+7);
+    }
   }
-
-  // for(var i=weeks.length-1; i>= 0; i--) {
-  //   createWeek(weeks[i]);
-  // }
-
-
-
   function createWeek(week, sunday) {
     var cloned = $("#week-section-template").clone();
     cloned.removeAttr('id');
@@ -105,7 +101,7 @@ function makeTimesheet(ts){
       for(var i=0; i<day['in'].length; i++) {
         afterElement = createTimeRow(day['in'][i], "in-time", afterElement)
         if(day['out'][i]) {
-          afterElement = createTimeRow(day['in'][i], "out-time", afterElement)
+          afterElement = createTimeRow(day['out'][i], "out-time", afterElement)
         }
       }
     }
@@ -161,6 +157,7 @@ function makeTimesheet(ts){
   $("#time-edit .reject-new").click(function(){
     $("#time-edit").hide();
   });
+  console.log("init");
   $("#accept-new").click(function() {
     console.log(editorTimestamp);
 
@@ -188,8 +185,11 @@ function makeTimesheet(ts){
     }
 
     if(inTime || (inTime && outTime)) {
+      console.log("sending...");
+      console.log(data);
       Database.createClock(data, timesheetId).done(function(){
         console.log("created success");
+        reloadDom();
       });
     }
   });
@@ -199,19 +199,21 @@ function makeTimesheet(ts){
 
       var hourMinutes = TimeTools.parseTextHourMinute(newText);
 
-      if(hourMinutes != null){
+      if(newText.length <= 0){
+        console.log("send to server detele: "+currentTimestap);
+        Database.deleteClock(currentTimestap, timesheetId).done(function() {
+          console.log(currentTimestap);
+          reloadDom();
+        });
+      }
+      else if(hourMinutes){
         var newTime = TimeTools.objectToMS(hourMinutes);
         var totalNewTime = TimeTools.getFlatDay(currentTimestap).getTime() + newTime;
         Database.updateClock({"clockOriginal": currentTimestap, "clockReplacement": totalNewTime}, timesheetId).done(function(){
-          alert("update success");
+          reloadDom();
         });
       }
-      else{
-        console.log("send to server detele: "+currentTimestap);
-        Database.deleteClock(currentTimestap, timesheetId).done(function() {
-          alert("delete success");
-        });
-      }
+
 
       var text = originalText;
       if(text === null) {
@@ -221,7 +223,10 @@ function makeTimesheet(ts){
       currentInputBox = null;
     }
   }
-}
+
+  reloadDom();
+});
+
 </script>
 
 {% endblock %}
