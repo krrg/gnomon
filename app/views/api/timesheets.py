@@ -331,6 +331,8 @@ class Clock:
         del self.cin[index]
         del self.cout[index]
 
+        return self.__validate()
+
     def __validate(self):
         if len(self.cin) != len(self.cout):
             return False
