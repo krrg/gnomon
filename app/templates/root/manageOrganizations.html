@@ -56,7 +56,6 @@ $(document).ready(function() {
         console.log(result);
         var jobs = result['jobs'];
         for(var i=0; i<jobs.length; i++) {
-          console.log(jobs);
           createJob(jobs[i], cloned);
         }
       });
@@ -97,8 +96,10 @@ $(document).ready(function() {
     cloned.find(".job-edit-btn").off('click');
     cloned.find(".job-user-btn").click(function() {
       var modal = $("#job-user-list-modal");
+      modal.find(".user-list-row").empty();
       Database.listUsersByJob(job['id']).done(function(result) {
         var users = result['users'];
+
         for(var i=0; i<users.length; i++) {
           createUser(users[i], modal.find(".user-list-row").first());
         }
