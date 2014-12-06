@@ -31,10 +31,12 @@ def api_users_list():
         users.extend(db['users'].find({}))
 
     return jsonify({
-        "users": list(map(lambda user: {
-            "id": str(user["_id"]),
-            "username": user["username"]
-        }, users))
+        "users": [
+            {
+                "username": user['username'],
+                "id": str(user['_id'])
+            }
+        for user in users]
     })
 
 @auth_required
