@@ -70,7 +70,7 @@ $(document).ready(function() {
     });
   }
   function createPerson(person) {
-    selectedPerson = person['id'];
+
     var cloned = $("#person-template").clone();
     cloned.removeAttr('id');
     cloned.removeAttr('style');
@@ -79,6 +79,7 @@ $(document).ready(function() {
 
     cloned.find(".person-username").html("<p>"+person['username']+"</p>");
     cloned.find("button").click(function() {
+      selectedPerson = person['id'];
       var modal = $('#person-modal');
       modal.find(".modal-title").html(person['username']);
       $('#organization-selector-text').html("Select Organization");
