@@ -68,7 +68,8 @@ def api_timesheet_create(body):
 
         db['timesheet'].insert({
             "userid": hired_user_id,
-            "jobid": jobid
+            "jobid": jobid,
+            "status": "pending"
         })
 
     except KeyError:
