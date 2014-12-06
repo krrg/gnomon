@@ -7,7 +7,7 @@ from app.views.wrappers import login_page_first
 @app.route('/')
 @app.route('/index.html')
 def root_index():
-    return render_template("root/index.html")
+    return render_template("root/index.html", homepage=True)
 
 @app.route('/timesheet')
 @app.route('/timesheet.html')
