@@ -15,7 +15,12 @@ def api_jobs_list():
     name = request.args['name'] if 'name' in request.args else None
 
     return jsonify({
-        "jobs": Job.get_jobs_with_permissions(orgid=orgid, name=name)
+        "jobs": [{
+            "id": str(job['_id']),
+            "name": job['name'],
+            "organizationId": job['orgid'],
+            "description": job['description'] if 'description' in job else ""
+        }] for job in Job.get_jobs_with_permissions(orgid=orgid, name=name)
     })
 
 
@@ -173,7 +178,7 @@ class Job:
         if name:
             query['name'] = name
 
-        job_permissioned_ids = [str(x['_id']) for x in db['jobs'].find(query)]
+        job_permissioned_ids = [x for x in db['jobs'].find(query)]
         return job_permissioned_ids
 
     # The commented code below is now invalid.
