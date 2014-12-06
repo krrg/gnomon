@@ -55,8 +55,8 @@ def api_timesheet_create(body):
     from app.views.api.jobs import Job
 
     try:
-        hired_user_id = body['timesheets']['userId']
-        jobid = body['timesheets']['jobId']
+        hired_user_id = body['timesheet']['userId']
+        jobid = body['timesheet']['jobId']
 
         # Ensure that this user actually owns this job.
         if not Job.is_user_owner(session['userid'], jobid):
@@ -86,10 +86,10 @@ def api_timesheet_create(body):
             }
         })
 
-    except KeyError:
+    except KeyError as e:
         return make_response(jsonify({
             "error": {
-                "msg": "Your request was valid json, but it was missing required parameters."
+                "msg": "Your request was valid json, but it was missing the '{}' key.".format(str(e))
             }
         }), 400)
 
