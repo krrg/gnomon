@@ -78,7 +78,7 @@ def api_timesheet_create(body):
         tid = db['timesheets'].insert({
             "userid": hired_user_id,
             "jobid": jobid,
-            "status": "pending"
+            "status": "active"  # TODO: Change this back to pending.
         })
 
         return jsonify({
