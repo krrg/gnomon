@@ -160,8 +160,8 @@ def api_clock_append(body, tid):
                 }
             }), 400)
         else:
-            timesheet['clockIn'] = clock.cin
-            timesheet['clockOut'] = clock.cout
+            timesheet['clockIn'] = list(clock.cin)
+            timesheet['clockOut'] = list(clock.cout)
 
             db['timesheets'].save(timesheet)
 
@@ -202,8 +202,8 @@ def api_timesheet_update(body, tid):
 
     try:
         def save_timesheet():
-            timesheet['clockIn'] = clock.cin
-            timesheet['clockOut'] = clock.cout
+            timesheet['clockIn'] = list(clock.cin)
+            timesheet['clockOut'] = list(clock.cout)
             db['timesheets'].save(timesheet)
 
             return jsonify({
@@ -261,8 +261,8 @@ def api_clock_delete(tid):
             unixstamp = int(request.args)
             clock = Clock(t.T)
             if clock.delete_stamp(unixstamp):
-                t.T['clockIn'] = clock.cin
-                t.T['clockOut'] = clock.cout
+                t.T['clockIn'] = list(clock.cin)
+                t.T['clockOut'] = list(clock.cout)
                 db['timesheets'].save(t.T)
 
                 return jsonify({
@@ -296,12 +296,12 @@ class Clock:
         pass
 
     def __init__(self, timesheet):
-        self.cin = sortedlist(timesheet['clockIn'])
-        self.cout = sortedlist(timesheet['clockOut'])
+        self.cin = sortedlist(timesheet['clockIn'] if 'clockIn' in timesheet else [])
+        self.cout = sortedlist(timesheet['clockOut'] if 'clockOut' in timesheet else [])
 
     def append(self, i, o):
-        self.cin.append(i)
-        self.cout.append(o)
+        self.cin.add(i)
+        self.cout.add(o)
 
         return self.__validate()
 
