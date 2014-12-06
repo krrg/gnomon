@@ -12,7 +12,7 @@ from bson import ObjectId
 @auth_required
 def api_organizations_list():
     userid = session['userid']
-    my_orgs = db['organizations'].find({"ownerid": ObjectId(userid)})
+    my_orgs = db['organizations'].find({"ownerid": userid})
 
     if my_orgs:
         return jsonify({
