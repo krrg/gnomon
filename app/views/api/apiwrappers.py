@@ -27,8 +27,9 @@ def expect_json_body(f):
                 }), 400)
         except BadRequest as e:
             return make_response(jsonify({
-                    "error": {
-                        "msg": "Could not parse JSON.  Is it well-formed?"
-                    }
-                }), 400)
+                "error": {
+                    "msg": "Could not parse JSON.  Is it well-formed?",
+                    "type": str(e)
+                }
+            }), 400)
     return decorated_function

@@ -147,38 +147,34 @@ class Job:
     @staticmethod
     def get_jobs_user_in(userid):
         jobs_user_in = db['timesheets'].find({"userid": userid}, {"jobid": 1})
-        return list(jobs_user_in) if jobs_user_in else []
+        return [(x['_id']) for x in jobs_user_in]
 
     @staticmethod
     def get_jobs_user_owns(userid):
         orgs_user_owned = db['organizations'].find({"ownerid": userid}, {"_id": 1})
         if not orgs_user_owned:
             return []
-        jobs = db['jobs'].find({"orgid": {"$in": list(orgs_user_owned)}}, {"_id": 1})
 
-        for job in jobs:
-            print job
+        orgs_ids = [str(x['_id']) for x in orgs_user_owned]
 
-        return list(jobs)
+        jobs = db['jobs'].find({"orgid": {'$in': orgs_ids}}, {"_id": 1})
+
+        return [(x['_id']) for x in jobs]
 
     @staticmethod
     def get_jobs_with_permissions(orgid=None, name=None):
-        jobids = set()
-        jobids.union(Job.get_jobs_user_in(session['userid']))
-        jobids.union(Job.get_jobs_user_owns(session['userid']))
+        jobids = []
+        jobids.extend(Job.get_jobs_user_in(session['userid']))
+        jobids.extend(Job.get_jobs_user_owns(session['userid']))
 
-        query = {"_id": {"$in": list(jobids)}}
+        query = {"_id": {'$in': jobids}}
         if orgid:
             query['orgid'] = orgid
         if name:
             query['name'] = name
 
-        jobs = db['jobs'].find(query)
-
-        for job in jobs:
-            print job
-
-        return list(jobs)
+        job_permissioned_ids = [str(x['_id']) for x in db['jobs'].find(query)]
+        return job_permissioned_ids
 
     # The commented code below is now invalid.
     # @staticmethod
