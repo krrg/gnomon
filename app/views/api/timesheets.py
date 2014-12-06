@@ -55,8 +55,8 @@ def api_timesheet_create(body):
     from app.views.api.jobs import Job
 
     try:
-        hired_user_id = body['timesheet']['userId']
-        jobid = body['timesheet']['jobId']
+        hired_user_id = body['timesheets']['userId']
+        jobid = body['timesheets']['jobId']
 
         # Ensure that this user actually owns this job.
         if not Job.is_user_owner(session['userid'], jobid):
@@ -67,14 +67,14 @@ def api_timesheet_create(body):
             }), 401)
 
         if Job.is_user_worker(hired_user_id, jobid):
-            timesheet = db['timesheet'].find_one({"userid": hired_user_id, "jobid": jobid})
+            timesheet = db['timesheets'].find_one({"userid": hired_user_id, "jobid": jobid})
             return jsonify({
                 "timesheet": {
                     "id": str(timesheet['_id'])
                 }
             })
 
-        tid = db['timesheet'].insert({
+        tid = db['timesheets'].insert({
             "userid": hired_user_id,
             "jobid": jobid,
             "status": "pending"
