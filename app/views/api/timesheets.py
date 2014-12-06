@@ -148,7 +148,7 @@ def api_clock_append(body, tid):
                 "error": {
                     "msg": "Your times don't match up correctly!"
                 }
-            }))
+            }), 400)
         else:
             timesheet['clockIn'] = clock.cin
             timesheet['clockOut'] = clock.cout
@@ -164,7 +164,7 @@ def api_clock_append(body, tid):
             "error": {
                 "msg": "Missing key '{}'".format(str(e))
             }
-        }))
+        }), 400)
 
 
 @api.route("/timesheets/<tid>/clock", methods=['PUT'])
@@ -221,7 +221,7 @@ def api_timesheet_update(body, tid):
             "error": {
                 "msg": str(e)
             }
-        }))
+        }), 400)
 
 
 @api.route("/timesheets/<tid>/clock/unix", methods=['DELETE'])
@@ -253,13 +253,13 @@ def api_clock_delete(tid):
                     "error": {
                         "msg": "This timestamp is not present in the timesheet..."
                     }
-                }))
+                }), 400)
         except ValueError:
             return make_response(jsonify({
                 "error": {
                     "msg": "The timestamp '{}' is not a valid timestamp.".format(unixstamp)
                 }
-            }))
+            }), 400)
 
 
 @api.route("/timesheets/<id>", methods=['DELETE'])
