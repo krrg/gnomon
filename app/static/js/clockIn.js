@@ -1,6 +1,11 @@
 $(document).ready(function() {
 
-  createTimesheets([TimeTools.testTimesheet,TimeTools.testTimesheet,TimeTools.testTimesheet])
+  //createTimesheets([TimeTools.testTimesheet,TimeTools.testTimesheet,TimeTools.testTimesheet])
+  Database.listTimesheetsByUserId(GnomonSession.userid).done(function(result) {
+    var timesheets = result['timesheets'];
+    createTimesheets(timesheets);
+  });
+
 
   function createTimesheets(timesheets) {
     var rowDiv = null;
@@ -8,7 +13,7 @@ $(document).ready(function() {
       if(i%2 === 0) {
         rowDiv = createNewRow();
       }
-      $(rowDiv).append(createNewClock(TimeTools.testTimesheet));
+      $(rowDiv).append(createNewClock(timesheets[i]));
     }
   }
 
@@ -36,7 +41,13 @@ $(document).ready(function() {
       console.log('here');
     });
 
-    cloned.find(".clock-in-title-text").html("Name Of Job")
+    cloned.find(".clock-in-title-text").html("loading...");
+
+    Database.getJob(timesheet['jobId']).done(function(result) {
+      cloned.find(".clock-in-title-text").html(result['job']['name']);
+      cloned.find(".clock-in-image").attr("src", "http://www.gravatar.com/avatar/" + result['job']['id'] + "?f=y&d=identicon")
+    });
+    cloned.find(".timesheet-link").attr("href", "/timesheet/"+timesheet['id']);
     cloned.find(".clock-in-week").html("<strong>Week:</strong> "+TimeTools.msToReadable(weekTime));
     cloned.find(".clock-in-day").html("<strong>Day:</strong> "+TimeTools.msToReadable(dayTime));
 

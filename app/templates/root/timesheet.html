@@ -153,7 +153,7 @@ function makeTimesheet(ts){
     }
 
     if(inTime || (inTime && outTime)) {
-      Database.createClock(data, "id").done(function(){
+      Database.createClock(data, GnomonSession.userid).done(function(){
         console.log("created success");
       });
     }
@@ -167,13 +167,13 @@ function makeTimesheet(ts){
       if(hourMinutes != null){
         var newTime = TimeTools.objectToMS(hourMinutes);
         var totalNewTime = TimeTools.getFlatDay(currentTimestap).getTime() + newTime;
-        Database.updateClock({"clockOriginal": currentTimestap, "clockReplacement": totalNewTime}, "id").done(function(){
+        Database.updateClock({"clockOriginal": currentTimestap, "clockReplacement": totalNewTime}, GnomonSession.userid).done(function(){
           alert("update success");
         });
       }
       else{
         console.log("send to server detele: "+currentTimestap);
-        Database.deleteClock(currentTimestap, "id").done(function() {
+        Database.deleteClock(currentTimestap, GnomonSession.userid).done(function() {
           alert("delete success");
         });
       }

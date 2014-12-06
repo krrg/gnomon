@@ -55,6 +55,15 @@ Database.listJobs = function(orgId) {
     dataType: "json"
   });
 }
+Database.getJob = function(jobId) {
+  var url = "/api/v1/jobs/"+jobId;
+
+  return $.ajax({
+    type: "GET",
+    url: url,
+    dataType: "json"
+  });
+}
 Database.createJob = function(data) {
   var jsondata = JSON.stringify({"job":data});
   return $.ajax({
@@ -73,6 +82,14 @@ Database.updateJob = function(id,data) {
     dataType: "json",
     data:jsondata,
     contentType:"application/json"
+  });
+}
+Database.listTimesheetsByUserId = function(userId) {
+  return $.ajax({
+    type: "GET",
+    url: "/api/v1/timesheets?userId="+userId,
+    // url: "/api/v1/timesheets",
+    dataType: "json"
   });
 }
 Database.createTimesheet = function(data) {
