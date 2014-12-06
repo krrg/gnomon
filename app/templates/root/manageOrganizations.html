@@ -22,6 +22,7 @@ $(document).ready(function() {
 
     var initDetails = false;
 
+    cloned.find(".job-plus-btn").off("click")
     cloned.find(".job-plus-btn").click(function() {
       var modal = $('#job-create');
       modal.find(".job-modal-name").first().val("");
