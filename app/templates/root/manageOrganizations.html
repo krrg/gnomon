@@ -161,6 +161,15 @@ $(document).ready(function() {
       createOrganization(organization);
     })
   });
+  $('#new-org-header .new-org-text').on('input', function() {
+    var name = $('#new-org-header .new-org-text').val();
+    if(name.length === 0) {
+      $('#new-org-header .new-org-create').attr("disabled","disabled");
+    }
+    else {
+      $('#new-org-header .new-org-create').removeAttr("disabled");
+    }
+  });
 });
 </script>
 
@@ -175,7 +184,7 @@ $(document).ready(function() {
             <input type="text" class="form-control new-org-text" placeholder="New Organization Name">
         </div>
         <div class="col-sm-2">
-          <button type="button" class="btn btn-primary new-org-create">Create New</button>
+          <button type="button" class="btn btn-primary new-org-create" disabled="disabled">Create New</button>
         </div>
       </div>
       <div class="row"  id="organization-list" >

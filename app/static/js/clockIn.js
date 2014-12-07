@@ -91,9 +91,9 @@ $(document).ready(function() {
 
     Database.listTimesheetsByUserId(GnomonSession.userid).done(function(result) {
       var timesheets = result['timesheets'];
-      if(timesheets.length > 0) {
-        createTimesheets(timesheets);
+      if(timesheets.length > 0) {        
         $('#clock-in-list').empty();
+        createTimesheets(timesheets);
       }
       else {
         $('#clock-in-list').append($("<h4 class='text-center'>Sorry, You Don't Have Any Jobs</h4>"));
