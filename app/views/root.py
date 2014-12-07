@@ -27,7 +27,7 @@ navlinks = [
 @app.route('/')
 @app.route('/index.html')
 def root_index():
-    return render_template("root/index.html", homepage=True)
+    return render_template("root/index.html", homepage=True, navlinks=navlinks)
 
 @app.route('/timesheet/<tid>')
 @login_page_first
