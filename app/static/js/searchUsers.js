@@ -91,7 +91,7 @@ $(document).ready(function() {
       selectedJob = null;
       selectedOrg = null;
     });
-    cloned.find(".img-responsive").attr('src', 'http://www.gravatar.com/avatar/'+person['id']+'?f=y&d=identicon');
+    cloned.find(".img-responsive").attr('src', 'https://www.gravatar.com/avatar/'+person['id']+'?f=y&d=identicon');
   }
   function createUserList() {
     $.ajax({

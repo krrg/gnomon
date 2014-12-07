@@ -68,7 +68,7 @@ $(document).ready(function() {
 
     Database.getJob(timesheet['jobId']).done(function(result) {
       cloned.find(".clock-in-title-text").html(result['job']['name']);
-      cloned.find(".clock-in-image").attr("src", "http://www.gravatar.com/avatar/" + result['job']['id'] + "?f=y&d=identicon")
+      cloned.find(".clock-in-image").attr("src", "https://www.gravatar.com/avatar/" + result['job']['id'] + "?f=y&d=identicon")
     });
     cloned.find(".timesheet-link").attr("href", "/timesheet/"+timesheet['id']);
     cloned.find(".clock-in-week").html("<strong>Week:</strong> "+TimeTools.msToReadable(weekTime));
