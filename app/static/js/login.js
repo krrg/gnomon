@@ -12,7 +12,6 @@ $(document).ready(function(event) {
       data: JSON.stringify(data),
       dataType: "json",
       success: function(result) {
-        console.log("success");
         window.location = "/clockin";
       },
       error: function(xhr,status,error) {

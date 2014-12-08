@@ -1,6 +1,15 @@
 function Database() {
 
 }
+Database.login = function(username, password) {
+  return $.ajax({
+    type: "POST",
+    contentType: "application/json",
+    url: "/api/v1/auth",
+    data: JSON.stringify({"username":username, "password":password}),
+    dataType: "json"
+  });
+}
 Database.register = function(username, password) {
   var jsondata = JSON.stringify({"user":{"username":username, "password":password, "email":""}});
   return $.ajax({

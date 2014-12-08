@@ -13,7 +13,9 @@ $(document).ready(function() {
     var username = $("#gn-register-username").val();
     var password = $("#gn-register-password").val();
     Database.register(username, password).done(function(){
-      alert("success");
+      Database.login(username, password).done(function() {
+        window.location = "/clockin";
+      })
     }).fail(function(){
       alert("failed");
     });
