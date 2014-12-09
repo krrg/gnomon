@@ -17,6 +17,13 @@ import base64
 from datetime import datetime
 
 
+@auth_required
+def get_current_username():
+    userid = session['userid']
+    user = db['users'].find_one({"_id": ObjectId(userid)})
+    return user['username'] if user and 'username' in user else ""
+
+
 @api.route('/users', methods=['GET'])
 def api_users_list():
     users = []
