@@ -176,7 +176,13 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content %}
-<divclass="container-fluid">
+<div class="header text-center" style="background-color: #008cba; color: white;">
+  <div class="row">
+    <h4><strong>Organizations</strong></h4>
+  </div>
+</div>
+
+<div class="container-fluid">
   <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
       <div class="row" id="new-org-header">
@@ -318,6 +324,9 @@ $(document).ready(function() {
         <div class="container-fluid">
           <div class="row user-list-row">
 
+          </div>
+          <div class="row text-center">
+            <a href="/searchUsers">Find users to add</a>
           </div>
         </div>
       </div>

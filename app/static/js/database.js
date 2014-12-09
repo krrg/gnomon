@@ -51,6 +51,15 @@ Database.listUsersByJob = function(jobId) {
     dataType: "json"
   });
 }
+Database.getUser = function(userId) {
+  var url = "/api/v1/users/"+userId;
+
+  return $.ajax({
+    type: "GET",
+    url: url,
+    dataType: "json"
+  });
+}
 Database.listJobs = function(orgId) {
   var url = "/api/v1/jobs?";
 
