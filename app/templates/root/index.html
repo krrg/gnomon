@@ -20,6 +20,43 @@ $(document).ready(function() {
       alert("failed");
     });
   });
+  $("#gn-register-btn").attr("disabled", "disabled");
+  $("#gn-register-username").on("input", function() {
+    validateInfo();
+  });
+  $("#gn-register-password").on("input", function() {
+    validateInfo();
+  });
+  function validateInfo() {
+    var username = $("#gn-register-username").val();
+    var password = $("#gn-register-password").val();
+    if(username.length === 0 || password.length < 5) {
+      $("#gn-register-btn").attr("disabled", "disabled");
+    }
+    else {
+      $("#gn-register-btn").removeAttr("disabled");
+    }
+
+    Database.validUsername(username).done(function(){
+      $("#gn-register-username").parent(".form-group").addClass("has-success");
+      $("#gn-register-username").parent(".form-group").removeClass("has-error");
+    }).fail(function(){
+      $("#gn-register-username").parent(".form-group").addClass("has-error");
+      $("#gn-register-username").parent(".form-group").removeClass("has-success");
+    });
+    if(password.length >= 5) {
+      $("#gn-register-password").parent(".form-group").addClass("has-success");
+      $("#gn-register-password").parent(".form-group").removeClass("has-error");
+    }
+    else if( password.length == 0) {
+      $("#gn-register-password").parent(".form-group").removeClass("has-success");
+      $("#gn-register-password").parent(".form-group").removeClass("has-error");
+    }
+    else {
+      $("#gn-register-password").parent(".form-group").removeClass("has-success");
+      $("#gn-register-password").parent(".form-group").addClass("has-error");
+    }
+  }
 });
 </script>
 
