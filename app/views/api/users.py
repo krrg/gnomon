@@ -3,6 +3,7 @@ from app.views.api import api
 from flask import request, session, jsonify, abort, make_response
 from app.__init__ import db
 from auth import auth_required
+from apiwrappers import expect_json_body
 
 
 # Mongo id lookups
@@ -44,6 +45,30 @@ def api_users_list():
             }
         for user in users]
     })
+
+
+@api.route('/users/exists', methods=['POST'])
+@expect_json_body
+def api_users_exists(body):
+    try:
+        match = db['users'].find_one({"username": body['username']})
+        if match:
+            return jsonify({
+                "msg": "Okay"
+            })
+        else:
+            return make_response({
+                "error": {
+                    "msg": "Username already exists."
+                }
+            }, 402)
+    except KeyError as e:
+        return make_response({
+            "error": {
+                "msg": "Malformed request: Missing the {} field.".format(e)
+            }
+        }, 400)
+
 
 @auth_required
 def api_users_filter_by_jobid(jobid):
