@@ -6,6 +6,24 @@
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
 <script src="/static/js/timeTools.js"></script>
 <script src="/static/js/database.js"></script>
+<style>
+#error-container {
+  bottom: 0px;
+  left:30px;
+  right:30px;
+  position: fixed;
+  z-index: 1000;
+}
+.row{
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.header-row {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+</style>
+
 {% endassets %}
 <script>
 var timesheetId = "{{ tid }}";
@@ -13,9 +31,21 @@ var currentInputBox = null;
 var originalText = null;
 var currentTimestap = null;
 var editorTimestamp = null;
+var firstTime = true;
 $(document).ready(function(){
   function reloadDom() {
     Database.getTimesheet(timesheetId).done(function(data){
+
+      if(firstTime) {
+        Database.getJob(data['timesheet']['jobId']).done(function(result) {
+          $('#job-name-header').text(result['job']['name']);
+        });
+        Database.getUser(data['timesheet']['userId']).done(function(result) {
+          $('#username-header').text(result['user']['username']);
+        });
+        firstTime = false;
+      }
+
       $("#time-edit").hide();
       $("body").append($("#time-edit"));
       $("#weeks-container").empty();
@@ -28,8 +58,6 @@ $(document).ready(function(){
     var lastSunday = TimeTools.getLastSunday(new Date().getTime());
     lastSunday.setDate(lastSunday.getDate() + 7);
     var thresholdSundayTime = lastSunday.getTime();
-
-    console.log(ts);
 
     var weeks = TimeTools.getWeeks(ts['clockIn'], ts['clockOut']);
 
@@ -64,7 +92,8 @@ $(document).ready(function(){
 
     //var sunday = TimeTools.getLastSunday(week['in'][0]);
     cloned.find(".week-header").html("Week of "+TimeTools.monthNames[sunday.getMonth()]+" " + sunday.getDate()+", "+sunday.getFullYear());
-
+    var weekTotal = TimeTools.msToReadableMinutes(TimeTools.getTimeTotal(week['in'], week['out']));
+    cloned.find(".week-time-total").text(weekTotal);
     var days = TimeTools.getDays(week['in'], week['out']);
     var dayIndex = 0;
 
@@ -84,7 +113,7 @@ $(document).ready(function(){
       var sundayClone = new Date(sunday.getTime());
       sundayClone.setDate(sundayClone.getDate() + i);
       var flatDay = TimeTools.getFlatDay(sundayClone);
-      createDay(i, day, cloned, flatDay);
+      createDay(i, day, cloned.find(".week-columns").first(), flatDay);
     }
 
     $("#weeks-container").append(cloned);
@@ -96,8 +125,10 @@ $(document).ready(function(){
 
     cloned.find(".timesheet-day").html(TimeTools.dayNames[dayIndex]);
 
-    var afterElement = cloned.find(".timesheet-day").first();
+    var afterElement = cloned.find(".day-total-col").first();
+    afterElement.find(".day-total-text").text(TimeTools.msToReadableMinutes(0));
     if(day != null) {
+      afterElement.find(".day-total-text").text(TimeTools.msToReadableMinutes(TimeTools.getTimeTotal(day['in'], day['out'])));
       for(var i=0; i<day['in'].length; i++) {
         afterElement = createTimeRow(day['in'][i], "in-time", afterElement)
         if(day['out'][i]) {
@@ -105,6 +136,7 @@ $(document).ready(function(){
         }
       }
     }
+
     cloned.find(".add-time").click(function(){
       $("#time-edit").appendTo($(event.target).parents(".row").first());
       $("#time-edit").show();
@@ -157,7 +189,6 @@ $(document).ready(function(){
   $("#time-edit .reject-new").click(function(){
     $("#time-edit").hide();
   });
-  console.log("init");
   $("#accept-new").click(function() {
     console.log(editorTimestamp);
 
@@ -190,6 +221,9 @@ $(document).ready(function(){
       Database.createClock(data, timesheetId).done(function(){
         console.log("created success");
         reloadDom();
+      }).fail(function(error) {
+        var json = JSON.parse(error.responseText);
+        showError(json['error']['msg']);
       });
     }
   });
@@ -200,17 +234,22 @@ $(document).ready(function(){
       var hourMinutes = TimeTools.parseTextHourMinute(newText);
 
       if(newText.length <= 0){
-        console.log("send to server detele: "+currentTimestap);
         Database.deleteClock(currentTimestap, timesheetId).done(function() {
-          console.log(currentTimestap);
           reloadDom();
+        }).fail(function(error) {
+          var json = JSON.parse(error.responseText);
+          showError(json['error']['msg']);
         });
       }
       else if(hourMinutes){
         var newTime = TimeTools.objectToMS(hourMinutes);
         var totalNewTime = TimeTools.getFlatDay(currentTimestap).getTime() + newTime;
         Database.updateClock({"clockOriginal": currentTimestap, "clockReplacement": totalNewTime}, timesheetId).done(function(){
+
           reloadDom();
+        }).fail(function(error) {
+          var json = JSON.parse(error.responseText);
+          showError(json['error']['msg']);
         });
       }
 
@@ -222,8 +261,18 @@ $(document).ready(function(){
       $(currentInputBox).html(text);
       currentInputBox = null;
     }
-  }
 
+  }
+  var showCount = 0;
+  function showError(msg) {
+    $("#error-container").show();
+    $("#error-container .error-text").text(msg);
+    showCount++;
+    setTimeout(function(){
+      if(--showCount <= 0)
+        $("#error-container").hide();
+    },5000);
+  }
   reloadDom();
 });
 
@@ -233,6 +282,15 @@ $(document).ready(function(){
 
 {% block content %}
 
+
+
+<div class="header text-center" style="background-color: #008cba; color: white;">
+  <div class="row">
+    <div class="col-sm-12">
+      <h4><strong>Timesheet - <span id="username-header"></span> - <span id="job-name-header"></span> </strong></h4>
+    </div>
+  </div>
+</div>
 <div class="timesheet">
 
   <div class="col-sm-14 col-xs-14 time" style="display:none;" id="time-edit">
@@ -259,10 +317,15 @@ $(document).ready(function(){
   </div>
 </div>
 <div class="week-section" id="week-section-template" style="display: none;">
-  <div class="row">
+
+  <div class="row header-row">
     <div class="col-xs-14 text-center" style="background: gray;">
       <h4 class="week-header">Week of November 30, 2014</h4>
-    </div>
+      <div>
+        <h4>Week Total: <span class="week-time-total"></span></h4>
+      </div>
+
+
 
     <div class="visible-xs col-xs-7 text-center" style="background: gray;">
       In
@@ -282,30 +345,29 @@ $(document).ready(function(){
     <div class="col-sm-14 col-xs-14 timesheet-day">
       Monday
     </div>
-
-    <!-- <div class="col-sm-14 col-xs-7 in-time">
-      8:24:01 PM
+    <div class="col-sm-14 col-xs-14 day-total-col text-center">
+      <div>
+        Total: <span class="day-total-text"></span>
+      </div>
     </div>
-
-    <div class="col-sm-14 col-xs-7 out-time">
-      8:24:59 PM
-    </div>
-
-    <div class="col-sm-14 col-xs-7 in-time">
-      8:26:30 PM
-    </div>
-
-    <div class="col-sm-14 col-xs-7 out-time">
-      8:28:10 PM
-    </div> -->
 
     <div class="col-sm-14 col-xs-14 add-time-col">
       <button class="btn btn-default btn-block add-time">
         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
       </button>
     </div>
+
   </div>
 </div>
 <div class="col-sm-14 col-xs-7" style="display: none;" id="clock-row-template">
 </div>
+
+  <div id="error-container" style="display:none">
+    <div class="alert alert-warning" role="alert">
+      <h4><strong>Error:</strong> <span class="error-text"></span><h4>
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}

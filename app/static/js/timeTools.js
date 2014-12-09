@@ -93,6 +93,15 @@ TimeTools.msToReadable = function(ms) {
 
   return ""+hourStr+":"+minuteStr+":"+secondsStr;
 }
+TimeTools.msToReadableMinutes = function(ms) {
+  var minutes=(~~(ms/(1000*60)))%60
+  var hours=(~~(ms/(1000*60*60)))
+
+  var hourStr = hours.toString();
+  var minuteStr = minutes >= 10 ? minutes.toString() : "0"+minutes.toString();
+
+  return ""+hourStr+":"+minuteStr;
+}
 TimeTools.getBasicTime = function(date) {
   var hours = date.getHours();
   var mid = "AM";
