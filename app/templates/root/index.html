@@ -33,11 +33,18 @@ $(document).ready(function() {
     if(username.length === 0 || password.length === 0) {
       $("#gn-register-btn").attr("disabled", "disabled");
     }
-    else {
-      $("#gn-register-btn").removeAttr("disabled");
-    }
 
     Database.validUsername(username).done(function(){
+
+      $("#gn-register-btn").attr("disabled", "disabled");
+      if(username.length === 0 || password.length === 0) {
+        $("#gn-register-btn").attr("disabled", "disabled");
+      }
+      else {
+        $("#gn-register-btn").removeAttr("disabled");
+      }
+
+
       $("#gn-register-username").parent(".form-group").addClass("has-success");
       $("#gn-register-username").parent(".form-group").removeClass("has-error");
     }).fail(function(){
