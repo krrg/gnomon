@@ -44,11 +44,7 @@
                 <a class="navbar-brand" href="/">GNOMON</a>
         </div>
 
-        <div class="nav navbar-nav navbar-right">
-            <form action="/logout">
-                <button class="btn btn-primary navbar-btn">Logout</button>
-            </form>
-        </div>
+
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -57,6 +53,11 @@
                     <li {%if link['href'] == request.url_rule.rule %} class="bg-primary"{%endif%}><a href="{{link['href']}}">{{link['text']}}</a></li>
                 {% endfor %}
             </ul>
+            <div class="nav navbar-nav navbar-right">
+            <form action="/logout">
+                <button class="btn btn-primary navbar-btn">Logout</button>
+            </form>
+        </div>
         </div><!-- /.navbar-collapse -->
 
 
