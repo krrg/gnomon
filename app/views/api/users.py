@@ -57,17 +57,17 @@ def api_users_exists(body):
                 "msg": "Okay"
             })
         else:
-            return make_response({
+            return make_response(jsonify({
                 "error": {
                     "msg": "Username already exists."
                 }
-            }, 402)
+            }), 402)
     except KeyError as e:
-        return make_response({
+        return make_response(jsonify({
             "error": {
                 "msg": "Malformed request: Missing the {} field.".format(e)
             }
-        }, 400)
+        }), 400)
 
 
 @auth_required
