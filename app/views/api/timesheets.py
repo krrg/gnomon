@@ -408,6 +408,12 @@ class Clock:
         current_time = time.time() * 1000
         return all(map(lambda stamp: stamp <= current_time, chain(self.cin, self.cout)))
 
+    def __validate_in_before_out(self):
+        for timein, timeout in zip(self.cin, self.cout):
+            if timein >= timeout:
+                return False
+        return True
+
     def __validate(self):
         if (len(self.cin) - len(self.cout)) not in [0, 1]:  # |cout| <= |cin|, and |cin| - |cout| <= 1
             return False
@@ -416,7 +422,7 @@ class Clock:
             if clock_in <= clock_out:
                 return False
 
-        return self.__validate_none_in_future()
+        return self.__validate_none_in_future() and self.__validate_in_before_out()
 
 class Timesheet:
     def __init__(self, timesheet):

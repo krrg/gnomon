@@ -73,6 +73,12 @@ def searchUsers():
 
     return render_template("root/searchUsers.html", navlinks=navlinks, username=users.get_current_username())
 
+@app.route("/export")
+@login_page_first
+def export():
+    import app.views.api.users as users
+    return render_template("root/export.html", navlinks=navlinks, username=users.get_current_username())
+
 @app.route("/logout")
 def logout():
     session.clear()
