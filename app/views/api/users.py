@@ -52,7 +52,7 @@ def api_users_list():
 def api_users_exists(body):
     try:
         match = db['users'].find_one({"username": body['username']})
-        if match:
+        if not match:
             return jsonify({
                 "msg": "Okay"
             })
