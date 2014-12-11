@@ -2,20 +2,70 @@
 
 {%block imports %}
 
-
 {% endblock %}
 
 {% block content %}
 <div class="container">
 
-  <div class="row">
       <h1>Export</h1>
-      <h2>Choose the format to export to:</h2>
-      <a class="btn"></a>
-      <div class="col-md-6">
+          <h2 style="display: inline;">Choose the format to export to:</h2>
+          &nbsp;<button class="btn btn-info gn-exportbtn-json">JSON</button>
+          <br />
+          <br />
+          <textarea cols=50 rows=15 class="gn-export-result">
+          </textarea>
 
+          </div>
       </div>
-  </div>
 
 </div>
+
+<script>
+
+var ExportController = (function(){
+
+    var internal = {};
+
+    internal.exportAsJson = function(){
+        $(".gn-export-json").html("");
+
+        promOrgs = $.ajax({
+            url: '/api/v1/organizations',
+            type: 'GET',
+            dataType: 'json'
+        });
+
+        promJobs = $.ajax({
+            url: '/api/v1/jobs',
+            type: 'GET',
+            dataType: 'json'
+        });
+
+        promTimesheets = $.ajax({
+            url: '/api/v1/timesheets',
+            type: 'GET',
+            dataType: 'json'
+        });
+
+        $.when(promOrgs, promJobs, promTimesheets).done(function(orgs, jobs, timesheets){
+
+            var result = {};
+
+            result['organizations'] = orgs[0]['organizations'];
+            result['jobs'] = jobs[0]['jobs'];
+            result['timesheets'] = timesheets[0]['timesheets'];
+
+            $(".gn-export-result").val(JSON.stringify(result, null, 4));
+        });
+    };
+
+
+    return internal;
+
+})();
+
+$(".gn-exportbtn-json").click(function(){
+    ExportController.exportAsJson();
+});
+</script>
 {% endblock %}
