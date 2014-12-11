@@ -20,6 +20,10 @@ navlinks = [
     {
         "href": "/searchUsers",
         "text": "Search Users"
+    },
+    {
+        "href": "/export",
+        "text": "Export"
     }
 ]
 
