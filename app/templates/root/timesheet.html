@@ -138,7 +138,7 @@ $(document).ready(function(){
     }
 
     cloned.find(".add-time").click(function(){
-      $("#time-edit").appendTo($(event.target).parents(".row").first());
+      $("#time-edit").appendTo(cloned.find(".add-time").parents(".row").first());
       $("#time-edit").show();
       editorTimestamp = flatDay.getTime();
     });
