@@ -152,7 +152,7 @@ $(document).ready(function(){
     cloned.html(TimeTools.getBasicTime(new Date(time)));
     cloned.addClass(classType);
 
-    cloned.click(function(){
+    cloned.click(function(event){
       event.preventDefault();
       if(currentInputBox !== null && !this.isEqualNode(currentInputBox)) {
         updateFromInputBox();
